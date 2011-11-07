@@ -16,13 +16,15 @@ compress images, video and audio from cam
 import os
 import sys
 
+jpegQuality = 75
+
 def cmpr(fOrig):
     nm, extn = os.path.splitext(fOrig)
     cmd = None
     if extn.lower() == '.jpg':
         fNew = nm + 'Orig' + extn
         os.rename(fOrig, fNew)
-        cmd = 'convert -quality 75 ' + fNew + ' ' + fOrig
+        cmd = 'convert -quality ' + str(jpegQuality) + ' ' + fNew + ' ' + fOrig
     elif extn.lower() == '.avi':
         cmd = 'mencoder -noskip -forceidx -ffourcc DX50 -oac mp3lame \
                 -ovc lavc ' + fOrig + ' -o ' + nm + '.mpg'
@@ -67,6 +69,8 @@ if __name__ == '__main__':
             dir = os.getcwd()
         else:
             dir = sys.argv[2]
+    elif len(sys.argv) > 2 and sys.argv[1] == '-q':
+        jpegQuality = sys.argv[2]
     else:
         if len(sys.argv) > 1:
             dir = sys.argv[1]
