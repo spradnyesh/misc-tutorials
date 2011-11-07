@@ -1,0 +1,124 @@
+a {
+    text-decoration: none;
+}
+#doc {
+    margin-top: 2%;
+    font-size: 93%;
+    width: 730px;
+}
+
+/*Logos*/
+#logo-title .yui-u {
+    width: 78%;
+}
+#logo-title .yui-u.first {
+    width: 20%;
+}
+#banners {
+    text-align: right;
+}
+#english-banner {
+    height: 27px;
+    width: 526px;
+}
+#hindi-banner {
+    height: 34px;
+    width: 375px;
+}
+#address {
+    margin: 20px 0 0;
+}
+
+/*Main menu bar*/
+#main-menu {
+    /*background-color: #8E866A;*/
+    padding: 8px 5px;
+    margin: 10px 0;
+}
+#main-menu h1 {
+    display: inline;
+    padding: 0 10px;
+}
+#main-menu h1 a {
+    color: #fff;
+    font-size: 85%;
+    font-weight: normal;
+}
+
+/*Body*/
+#bd {
+    /*background-color: #8E866A;*/
+    padding: 10px;
+}
+#nav-menu {
+    color: #fff;
+    /*background-color: #5A5644;*/
+}
+#content {
+    color: #686454;
+}
+#content form p label {
+    width: 50px;
+}
+#content form #submit {
+    margin-left: 100px;
+}
+#content .blog-entry, #content form {
+    /*background-color: #E5DCB9;*/
+    padding: 10px 10px 20px;
+    margin: 0 0 10px 0;
+}
+#content .blog-entry .blog-hd {
+    margin-bottom: 10px;
+}
+#content .blog-entry .blog-hd .title {
+    float: left;
+    font-size: 131%;
+    margin: 0;
+}
+#content .blog-entry .blog-hd .title a {
+    color: #3F3C2D;
+}
+#content .blog-entry .blog-hd .dop {
+    text-align: right;
+}
+#content .blog-entry .blog-bd .more {
+    float: right;
+    color: #3F3C2D;
+}
+
+/*Rounded corners*/
+.bl {
+    background: #E5DCB9 url('/static/images/bl10-blog-entry.png') 0 100% no-repeat;
+}
+.br {
+    background: url('/static/images/br10-blog-entry.png') 100% 100% no-repeat;
+}
+.tl {
+    background: url('/static/images/tl10-blog-entry.png') 0 0 no-repeat;
+}
+.tr {
+    background: url('/static/images/tr10-blog-entry.png') 100% 0 no-repeat;
+}
+.bl-brown {
+    background: #8E866A url('/static/images/bl10-white.png') 0 100% no-repeat;
+}
+.br-brown {
+    background: url('/static/images/br10-white.png') 100% 100% no-repeat;
+}
+.tl-brown {
+    background: url('/static/images/tl10-white.png') 0 0 no-repeat;
+}
+.tr-brown {
+    background: url('/static/images/tr10-white.png') 100% 0 no-repeat;
+}
+.bl-nav {
+    background: #5A5644 url('/static/images/bl10-blog-entry.png') 0 100% no-repeat;
+}
+.tr-nav {
+    background: url('/static/images/tr10-blog-entry.png') 100% 0 no-repeat;
+    padding: 10px;
+}
+.clear {
+    font-size: 1px; height: 1px;
+} 

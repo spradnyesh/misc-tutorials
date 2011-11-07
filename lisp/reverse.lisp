@@ -1,0 +1,7 @@
+(defun rvrs (lst)
+  (let ((rvlst ()) f)
+    (unless (zerop (length lst))
+      (setq f (first lst))
+      (setq rvlst (rvrs (rest lst)))
+      (append rvlst (cons f '())))))
+(write (rvrs '(0 1 2 3 4 5 6 7)))

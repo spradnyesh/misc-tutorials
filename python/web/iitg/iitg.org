@@ -1,0 +1,100 @@
+* needs
+  - [ ] server
+  - [ ] user account on server (preferably sudo)
+  - [ ] domain
+* requirements/features
+** blog like structure (publish new posts)
+*** navigation bar
+*** CANCELLED photos in posts
+    - [ ] file uploader
+*** DONE add/edit posts
+    CLOSED: [2009-04-18 Sat 21:40]
+*** DONE schedule publishing of posts
+    CLOSED: [2009-04-18 Sat 21:40]
+*** DONE retrieval based on
+    CLOSED: [2009-04-18 Sat 21:40]
+    - [X] year
+    - [X] year/month
+    - [X] year/month/date
+    - [X] year/month/date/slug
+** rss (for people who don't want to register)
+** DONE register email, passwd (passwd is required to change/stop subscription)
+   CLOSED: [2009-04-18 Sat 21:39]
+** CANCELLED modify registration
+** CANCELLED view all users (all, pagination)
+* design
+** urls
+*** BLOCKED /<year>
+*** BLOCKED /
+*** DONE /user/register
+    CLOSED: [2009-04-18 Sat 21:42]
+*** DONE /user/verify/<user-id>/nonce
+    CLOSED: [2009-04-18 Sat 21:42]
+*** DONE /<year>/<month>/<date>/<articleId>
+    CLOSED: [2009-04-18 Sat 21:42]
+*** DONE /<year>/<month>/<date>
+    CLOSED: [2009-04-18 Sat 21:42]
+*** DONE /<year>/<month>
+    CLOSED: [2009-04-18 Sat 21:42]
+*** CANCELLED /user/modify/<user-id>
+*** CANCELLED /user/all
+*** CANCELLED /user/page/<pageId> (paginated view of users)
+*** CANCELLED /user/<id> (details of one particular user)
+** views
+*** send email on user registration
+*** DONE input data from registration form
+    CLOSED: [2009-04-18 Sat 21:34]
+*** DONE register user on verification
+    CLOSED: [2009-04-18 Sat 21:33]
+** templates
+*** blog page
+**** DONE detail
+     CLOSED: [2009-04-18 Sat 10:35]
+**** DONE list
+     CLOSED: [2009-04-18 Sat 09:35]
+**** BLOCKED navBar
+*** users
+**** DONE registerGet
+     CLOSED: [2009-04-18 Sat 21:35]
+**** DONE registerPost
+     CLOSED: [2009-04-18 Sat 21:35]
+**** DONE verify
+     CLOSED: [2009-04-18 Sat 21:35]
+**** CANCELLED modify
+**** CANCELLED userPage
+** css
+** js
+** rss
+** DONE models
+*** DONE superuser
+*** DONE alumniUser
+    - name
+    - email
+    - passwd
+    - degreeType (BTech/MTech)
+    - dept
+    - yearOfPassing
+    - isEmailVerified
+    - nonce (used for verifying email)
+*** DONE blogPage
+    - title
+    - content
+    - dateOfPublishing
+** DONE signals
+   CLOSED: [2009-04-18 Sat 21:33]
+*** CANCELLED dateOfPublishing should be >= today
+    - will this affect modification of existing pages?
+    - let's keep it simple for now (this condition is not needed)
+*** DONE create/populate shortText on creation of new blog entry
+    CLOSED: [2009-04-18 Sat 11:18]
+*** DONE create/populate titleSlug on creation of new blog entry
+    CLOSED: [2009-04-18 Sat 11:18]
+** DONE cron
+   CLOSED: [2009-04-18 Sat 15:09]
+*** DONE publish scheduled articles on dateOfPublishing
+    CLOSED: [2009-04-18 Sat 15:09]
+    - generic views handle this automatically (doesn't show future posts). so nothing to do; hurray!
+** DONE admin page
+   - [X] show only blogPage section
+   - [X] allow scheduling of articles
+   - [X] remove 'sites' from flatpage

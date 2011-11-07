@@ -1,0 +1,8 @@
+(defun palindromep (lst)
+  (defun middle (lst)
+    (butlast (rest lst)))
+  (cond ((or (null lst)
+             (= 1 (length lst))) t)
+        ((equal (first lst) (first (last lst)))
+         (palindromep (middle lst)))
+        (t nil)))

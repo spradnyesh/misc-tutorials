@@ -1,0 +1,7 @@
+(defun slice (lst from to)
+  (dotimes (i (1- from))
+    (setf lst (rest lst)))
+  (setf lst (nreverse lst))
+  (dotimes (i (- to from 1))
+    (setf lst (rest lst)))
+  (setf lst (nreverse lst)))

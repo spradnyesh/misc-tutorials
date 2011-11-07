@@ -1,0 +1,6 @@
+(defun drop-n (lst k N)
+  (cond ((null lst) nil)
+        ((<= k 1) (drop-n (rest lst) N N))
+        (t (cons (first lst) (drop-n (rest lst) (decf k) N)))))
+(defun drop (lst n)
+  (drop-n lst n n))

@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+    <head>
+        <meta http-equiv='content-type' content='text/html; charset=utf-8'/>
+        <link charset='utf-8' type='text/css' href='/static/yui/build/reset/reset-min.css' rel='stylesheet' />
+        <link charset='utf-8' type='text/css' href='/static/yui/build/base/base-min.css' rel='stylesheet' />
+        <link charset='utf-8' type='text/css' href='/static/yui/build/fonts/fonts-min.css' rel='stylesheet' />
+        <link charset='utf-8' type='text/css' href='/static/yui/build/grids/grids-min.css' rel='stylesheet' />
+        <link charset='utf-8' type='text/css' href='/static/css/base.css' rel='stylesheet' />
+        {% block css %}
+        {% endblock %}
+    </style>
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    <div id='doc'>
+        <div id='hd'>
+          <div id='logo-title' class='yui-gd'>
+            <div class='yui-u first'>
+              <img id='logo' alt='Logo' src='/static/images/logo-top.gif' />
+            </div>
+            <div id='banners' class='yui-u'>
+              <img id='hindi-banner' alt='Hindi banner' src='/static/images/hindi-banner.gif' />
+              <img id='english-banner' alt='English banner' src='/static/images/english-banner.gif' />
+              <p id='address'>Guwahati - 781039, INDIA</p>
+            </div>
+          </div>
+          <div class='bl-brown'><div class='br-brown'><div class='tl-brown'><div class='tr-brown'>
+                  <div id='main-menu'>
+                    <h1><a href='/'>Home</a></h1>
+                    <h1><a href='/user/register/'>Register</a></h1>
+                  </div>
+          </div></div></div></div>
+          <div class="clear">&nbsp;</div>
+        </div>
+        <div class='bl-brown'><div class='br-brown'><div class='tl-brown'><div class='tr-brown'>
+                <div id='bd' class='yui-gd'>
+                  <div id='nav-menu' class='yui-u first'>
+                    <div class='bl-nav'><div class='br'><div class='tl'><div class='tr-nav'>
+                            <div>
+                            {% block navMenu %}
+                            <p>hello world</p>
+                            <p>hello world</p>
+                            {% endblock %}
+                            </div>
+                          </div>
+                  </div></div></div></div>
+                  <div class="clear">&nbsp;</div>
+                  <div id='content' class='yui-u'>
+                    {% block content %}
+                    {% endblock %}
+                  </div>
+                </div>
+        </div></div></div></div>
+        <div class="clear">&nbsp;</div>
+        <div id='ft'></div>
+    </div>
+    {% block js %}{% endblock %}
+</body>
+</html>

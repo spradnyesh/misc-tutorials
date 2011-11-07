@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class='bl'><div class='br'><div class='tl'><div class='tr'>
+          <form action='/user/register/' method='POST'>
+            {{ form.as_p }}
+            <input id='submit' type='submit' value='Submit' />
+          </form>
+  </div></div></div></div>
+  <div class="clear">&nbsp;</div>
+{% endblock %}

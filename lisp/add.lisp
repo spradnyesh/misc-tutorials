@@ -1,0 +1,7 @@
+(defun plus (&rest num)
+  (defvar sum 0)
+  (dolist (n num) 
+    (setf sum (+ sum n)))
+  (format t "~a " sum))
+(plus 1 2 3 4)
+(plus 12)

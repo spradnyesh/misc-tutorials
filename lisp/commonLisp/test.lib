@@ -1,0 +1,28 @@
+#0Y |CHARSET|::|UTF-8|
+(|SYSTEM|::|%IN-PACKAGE| "test" :|NICKNAMES| '|COMMON-LISP|::|NIL| :|USE|
+ '|COMMON-LISP|::|NIL| :|CASE-SENSITIVE| |COMMON-LISP|::|NIL| :|CASE-INVERTED|
+ |COMMON-LISP|::|NIL|)
+(|COMMON-LISP|::|USE-PACKAGE| '("COMMON-LISP") "test")
+(|COMMON-LISP|::|FIND-PACKAGE| "test")
+(|COMMON-LISP|::|SETQ| |COMMON-LISP|::|*PACKAGE*|
+ (|SYSTEM|::|%FIND-PACKAGE| "test"))
+(|SYSTEM|::|C-DEFUN| '|test|::|DIV-GT-100|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|X| |test|::|Y|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|MORE-THAN-5|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|OBJ|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|<=|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|A| |test|::|B|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|NULL|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|OBJ|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|NON-EMPTY-LISTP|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|OBJ|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|NOT|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|OBJ|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|DIV|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|X| |test|::|Y|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|ABSVAL|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|X|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|SUM|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|A| |test|::|B|)))
+(|SYSTEM|::|C-DEFUN| '|test|::|PRODUCT|
+ (|SYSTEM|::|LAMBDA-LIST-TO-SIGNATURE| '(|test|::|A| |test|::|B|)))

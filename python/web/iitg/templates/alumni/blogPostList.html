@@ -1,0 +1,18 @@
+{% extends 'alumni/blogPost.html' %}
+{% block content %}
+  {% for q in object_list %}
+    <div class='bl'><div class='br'><div class='tl'><div class='tr'>
+      <div class='blog-entry'>
+        <div class='blog-hd'>
+          <h3 class='title'><a class='more' href='/{{ q.dateOfPublishing.year }}/{{ q.dateOfPublishing|date:"M"|lower }}/{{ q.dateOfPublishing.day }}/{{ q.titleSlug }}/'>{{ q.title }}</a></h3>
+          <div class='dop'>{{ q.dateOfPublishing }}</div>
+        </div>
+        <div class='blog-bd'>
+          <div class='short-text'>{{ q.shortText }}...</div>
+          <div class='more'><a href='/{{ q.dateOfPublishing.year }}/{{ q.dateOfPublishing|date:"M"|lower }}/{{ q.dateOfPublishing.day }}/{{ q.titleSlug }}/'>more</a></div>
+        </div>
+      </div>
+    </div></div></div></div>
+    <div class="clear">&nbsp;</div>
+  {% endfor %}
+{% endblock %}

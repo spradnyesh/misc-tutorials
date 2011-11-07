@@ -1,0 +1,18 @@
+(defun till-k (lst k)
+  (cond ((<= k 0) nil)
+        (t (cons (first lst) (till-k (rest lst) (decf k))))))
+(defun from-k (lst k)
+  (cond ((< k 0) nil)
+        ((= k 0) lst)
+        (t (from-k (rest lst) (decf k)))))
+(defun split (lst n)
+  (append (list (till-k lst n))
+          (list (from-k lst n))))
+
+
+(defun split-2 (lst n)
+  (let ((l-pre nil))
+    (dotimes (i n)
+      (setf l-pre (append l-pre (list (first lst))))
+      (setf lst (rest lst)))
+    (append (list l-pre) (list lst))))

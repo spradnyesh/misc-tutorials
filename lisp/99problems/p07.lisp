@@ -1,0 +1,6 @@
+(defun my-flatten (lst)
+  (cond ((null lst) nil)
+        ((typep (first lst) 'list) (append (my-flatten (first lst))
+                                           (my-flatten (rest lst))))
+        (t (append (list (first lst))
+                   (my-flatten (rest lst))))))

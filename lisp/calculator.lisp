@@ -1,0 +1,26 @@
+(defpackage "calculator")
+
+(defun combine-expr (operator first-operand expression)
+  (let ((second-operand (first expression)) lst)
+    (setq lst (list first-operand operator second-operand))
+    (setq expression (rest expression))
+    (cons lst expression)))
+(defun enclose-expr (lst) 
+  (let (frst scnd thrd rslt) 
+    (if (> (length lst) 2)
+        (progn
+          (setq frst (pop lst))
+          (setq scnd (pop lst))
+          (setq thrd (pop lst))
+          (setq rslt (combine-expr frst scnd (list thrd)))
+          (setq rslt (pop rslt))
+          (setq lst (cons rslt lst))
+          (enclose-expr lst))
+        (pop lst))))
+
+;(trace combine-expr)
+;(trace enclose-expr)
+
+;(write (combine-expr '+ 3 '(5 - 6 * 8)))
+;(write (enclose-expr '(5 + 3 - 2)))
+(write (enclose-expr '(5 + 3 - 2 + 4 - 7 + 9 - 8)))

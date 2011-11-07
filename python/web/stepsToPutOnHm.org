@@ -1,0 +1,155 @@
+* steps to deploy tejashree.spradnyesh.org on hostmonster.com
+
+1.  create tejashree.spradnyesh.org w/ document root as ~/public_html/spradnyesh/tejashree
+2.  cd ~/public_html/spradnyesh/tejashree
+3.  django-admin.py startproject djcode; cd djcode; django-admin.py startapp aaichyakavita
+4.  cd ..; chmod -x *py; chmod -x app/*py; mkdir ../static templates; cd ../static; mkdir images css js
+5.  make changes in settings.py
+    0. DEBUG = False
+    1. admins:-
+        ('Mrs. Tejashree Sawant', 'tejashree@ipysd.com'),
+    2. DATABASE_ENGINE = 'sqlite3'
+    3. DATABASE_NAME = '/home/spradnye/public_html/spradnyesh/tejashree/djcode/db.db'
+    4. TIME_ZONE = 'Asia/Calcutta'
+    5. USE_I18N = False
+    6. MEDIA_ROOT = '/home/spradnye/public_html/spradnyesh/tejashree/djcode/static/'
+    7. MEDIA_URL = '/static/'
+    8. TEMPLATE_DIRS
+        '/home/spradnye/public_html/spradnyesh/tejashree/djcode/templates',
+    9. INSTALLED_APPS
+        'django.contrib.admin',
+        'django.contrib.flatpages',
+        'djcode.aaichyakavita,
+    10.MIDDLEWARE_CLASSES
+        'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+6.  .../djcode/urls.py:-
+7.  empty files for aaichyakavita/:- models.py, admin.py, urls.py, views.py
+    from django.conf.urls.defaults import *
+    
+    from django.contrib import admin
+    admin.autodiscover()
+    
+    urlpatterns = patterns('',
+        (r'^admin/(.*)', admin.site.root),
+    )
+8.  python manage.py syncdb
+   1. username: tejashree
+   2. email-id: tejashree@spradnyesh.org
+   3. passwd: sW70TLiIkdaM
+9.  .htaccess in ~/public_html/spradnyesh/tejashree/
+    AddHandler fcgid-script .fcgi
+    
+    Options +FollowSymLinks
+    RewriteEngine On
+    RewriteBase /
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_URI} !/static/.*
+    RewriteCond %{REQUEST_URI} !/media/.*
+    RewriteRule ^(.*)$ cgi-bin/tejashree.fcgi/$1 [QSA,L]
+    
+    Header unset ETag
+    FileETag None
+    
+    <FilesMatch "\.(ico|pdf|flv|jpg|jpeg|png|gif|js|css|swf)$">
+        Header set Expires "Thu, 31 Dec 2020 23:59:59 GMT"
+        SetOutputFilter DEFLATE
+    </FilesMatch>
+10. tejashree.fcgi in ~/public_html/spradnyesh/tejashree/cgi-bin
+    #!/home/spradnye/root/bin/python
+    import sys, os
+    
+    sys.path.insert(0, "/home/spradnye/public_html/spradnyesh/tejashree")
+    sys.path.insert(0, "/home/spradnye/downloads/django_src/django/")
+    
+    os.chdir("/home/spradnye/public_html/spradnyesh/tejashree/djcode")
+    
+    os.environ['DJANGO_SETTINGS_MODULE'] = "djcode.settings"
+    
+    from django.core.servers.fastcgi import runfastcgi
+    runfastcgi(method="threaded", daemonize="false")
+11. chmod +x tejashree.fcgi
+12. for flatpages create djcode/templates/flatpages/default.html
+    <html>
+        <head>
+            <meta content="text/html; charset=utf-8" http_equiv="Content_Type" />
+            <title>
+                {{ flatpage.title|safe }}
+            </title>
+        </head>
+        <body>
+            {{ flatpage.content|safe }}
+        </body>
+    </html>
+14. making a link to ~/downloads/django_src/django/contrib/admin/media/
+from .../tejashree does *NOT* work. we have to copy the whole dir into
+.../tejashree from ~/downloads/django_src/django/contrib/admin/media/
+15. in admin interface, site should be tejashree.spradnyesh.org
+
+
+
+
+
+
+
+installation of photologue:-
+1. cd ~/download
+2. photologue
+    svn checkout http://django-photologue.googlecode.com/svn/trunk/ photologue-trunk
+    cd photologue-trunk
+    p setup.py install
+    test by doing a:-
+        p
+        >>> import photologue
+3. python imaging library
+    svn co http://svn.effbot.python-hosting.com/pil/ 
+    cd pil
+    p setup.py install
+4. p manage.py syncdb
+5. p manage.py plinit
+**************************************************
+Photologue requires a specific photo size to display thumbnail previews in the Django admin application.
+Would you like to generate this size now? (yes, no):yes
+
+We will now define the "admin_thumbnail" photo size:
+
+Width (in pixels):200
+Height (in pixels):200
+Crop to fit? (yes, no):no
+Pre-cache? (yes, no):yes
+Increment count? (yes, no):yes
+
+A "admin_thumbnail" photo size has been created.
+
+Would you like to apply a sample enhancement effect to your admin thumbnails? (yes, no):no
+
+Photologue comes with a set of templates for setting up a complete photo gallery. These templates require you to define both a "thumbnail" and "display" size.
+Would you like to define them now? (yes, no):yes
+
+We will now define the "thumbnail" photo size:
+
+Width (in pixels):200
+Height (in pixels):200
+Crop to fit? (yes, no):no
+Pre-cache? (yes, no):yes
+Increment count? (yes, no):yes
+
+A "thumbnail" photo size has been created.
+
+
+We will now define the "display" photo size:
+
+Width (in pixels):500
+Height (in pixels):500
+Crop to fit? (yes, no):no
+Pre-cache? (yes, no):yes
+Increment count? (yes, no):yes
+
+A "display" photo size has been created.
+
+Would you like to apply a sample reflection effect to your display images? (yes, no):no
+**************************************************
+6. add 'photologue' to INSTALLED_APPS in settings.py
+7. add "(r'^photologue/', include('photologue.urls'))," to urls.py 
+8. cd ~/downloads/photologue-trunk/photologue/templates; cp -rvf photologue/ /home/spradnye/public_html/ipysd/fp-v1/djcode/templates
+9. cd ~public_html/spradnyesh/tejashree;
+    for i in `ls *shtml`; do; j=`basename $i .shtml`.html; cp $j djcode/templates; done

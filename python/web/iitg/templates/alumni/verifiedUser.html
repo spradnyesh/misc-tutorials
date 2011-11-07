@@ -1,0 +1,8 @@
+{% extends 'alumni/blogPost.html' %}
+{% block content %}
+  {% if verified %}
+<div id='verified'>Thank you! Your email address has been successfully verified.</div>
+  {% else %}
+<div id='verified'>Sorry! Your email address could not be successfully verified.</div>
+  {% endif %}
+{% endblock %}

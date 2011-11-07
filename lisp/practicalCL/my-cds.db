@@ -1,0 +1,2 @@
+
+((:|TITLE| "Lyle Lovett" :|ARTIST| "9" :|RATING| 0. :|RIPPED| |COMMON-LISP|::|NIL|) (:|TITLE| "Give Us a Break" :|ARTIST| "Limpopo" :|RATING| 10. :|RIPPED| |COMMON-LISP|::|T|) (:|TITLE| "Rockin' the Suburbs" :|ARTIST| "Ben Folds" :|RATING| 0. :|RIPPED| |COMMON-LISP|::|T|) (:|TITLE| "a" :|ARTIST| "b" :|RATING| "c" :|RIPPED| "g") (:|TITLE| "a" :|ARTIST| "b" :|RATING| "c" :|RIPPED| "f") (:|TITLE| "a" :|ARTIST| "b" :|RATING| "c" :|RIPPED| "e") (:|TITLE| "a" :|ARTIST| "b" :|RATING| "c" :|RIPPED| "d")) 

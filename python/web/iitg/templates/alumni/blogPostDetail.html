@@ -1,0 +1,15 @@
+{% extends 'alumni/blogPost.html' %}
+{% block content %}
+  <div class='bl'><div class='br'><div class='tl'><div class='tr'>
+    <div class='blog-entry'>
+      <div class='blog-hd'>
+        <h3 class='title'>{{ object.title }}</h3>
+        <div class='dop'>{{ object.dateOfPublishing }}</div>
+      </div>
+      <div class='blog-bd'>
+        <span class=full-text'>{{ object.fullText }}</span>
+      </div>
+    </div>
+  </div></div></div></div>
+  <div class="clear">&nbsp;</div>
+{% endblock %}

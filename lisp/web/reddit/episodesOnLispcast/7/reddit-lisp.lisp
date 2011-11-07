@@ -1,0 +1,480 @@
+(in-package :cl-user)
+
+;; we'll use the hunchentoot library
+(require 'hunchentoot)
+
+;; we'll need the cl-who library
+(require 'cl-who)
+
+;;let's use the s-utils library
+(require 's-utils)
+
+;; use the arnesi utilities library
+(require 'arnesi)
+
+;; cl-utilities library -- very useful
+(require 'cl-utilities)
+
+(require 'clsql-mysql)
+
+(clsql:locally-enable-sql-reader-syntax)
+
+(setf clsql:*default-caching* nil)
+
+;; and start the server
+(defvar *server* (hunchentoot:start-server :port 8080))
+
+
+(defmacro with-db (&body body)
+  (cl-utilities:with-unique-names (database)
+   `(clsql:with-database (,database '("localhost" "reddit" "reddit" "reddit")
+				    :pool t :if-exists :old)
+      (clsql-sys:with-default-database (,database)
+	,@body))))
+
+(defclass handler ()
+  ((url
+    :initarg :url
+    :accessor url
+    :type string)
+   (url-fun
+    :initarg :url-fun
+    :accessor url-fun
+    :type function)
+   (handler
+    :initarg :handler
+    :accessor handler)
+   (name
+    :initarg :name
+    :accessor name
+    :type symbol)))
+
+;; a place to store the handlers
+;; store them by name, which is a symbol
+(defvar *handlers* (make-hash-table))
+
+;; now, we define our new dispatcher that uses the new data structure
+(defun our-handler (request)
+  (let ((handler (gethandler (hunchentoot:script-name request))))
+    (when handler (handler handler))))
+
+;; now we need to usurp power from the default dispatch table
+(setf hunchentoot:*dispatch-table* (list 'our-handler))
+
+(defvar *+reddit-stream+*)
+(declaim (special *+reddit-stream+*))
+
+(defmacro with-page-output (&body body)
+  `(cl-who:with-html-output-to-string (*+reddit-stream+*)
+     ,@body))
+
+;; let's use a macro to define a page
+;; it will be pretty, not ugly
+(defmacro defpage ((name url) (&rest args) &body body)
+  (cl-utilities:once-only (url)
+    `(setf (gethandler ',name)
+      (make-instance 'handler
+       :url ,url
+       :url-fun ,(if (not args)
+		     `(lambda (handler &rest args)
+			(url handler))
+		     `(lambda (handler &key ,@args)
+			(format nil
+				,(format nil "~~A?~{~(~A~)=~~A~^&~}"
+					 args)
+				(url handler)
+				,@args)))
+       :name ',name
+       :handler (lambda ()
+		  (with-page-output
+		    ,@body))))))
+
+(defmacro defsnippet (name args &body body)
+  `(defun ,name ,args
+     (cl-who:with-html-output (*+reddit-stream+*)
+       ,@body)))
+
+(defmethod gethandler ((name symbol))
+  (gethash name *handlers*))
+
+(defmethod gethandler ((url string))
+  (find url
+	(gethandlers)
+	:key #'url :test #'equal))
+
+(defun gethandlers ()
+  (arnesi:hash-table-values *handlers*))
+
+(defun (setf gethandler) (handler name)
+  (setf (gethash name *handlers*) handler))
+
+(defmethod url ((name symbol))
+  (arnesi:awhen (gethandler name)
+    (url arnesi:it)))
+
+(defmethod command ((name symbol) &rest args)
+  (arnesi:awhen (gethandler name)
+    (apply (url-fun arnesi:it) arnesi:it args)))
+
+;; we'll need a data structure to store our links in
+(clsql:def-view-class link ()
+  ((title
+    :reader title
+    :initarg :title
+    :type string)
+   (url
+    :reader url
+    :initarg :url
+    :type string)
+   (id
+    :reader id
+    :initform nil
+    :type integer
+    :db-kind :key
+    :db-constraints (:not-null :auto-increment))
+   ;; let's store the time it's created
+   (timestamp
+    :reader timestamp
+    :initform (get-universal-time)
+    :type integer
+    :db-type "bigint")
+   ))
+
+(defmethod (setf score) :after (value (link link))
+  (with-db
+    (clsql:update-record-from-slot link 'score)))
+
+(defun create-link (title url)
+  (make-instance 'link :title title :url url))
+
+(defmethod age ((link link))
+  (- (get-universal-time)
+     (timestamp link)))
+
+(defun add-link (link)
+  (with-db
+    (clsql:with-transaction ()
+      (clsql:update-records-from-instance link)
+      (when (null (id link))
+	(setf (slot-value link 'id)
+	      (first
+	       (first
+		(clsql:query "SELECT MAX(ID) FROM LINK"))))))))
+
+(defun remove-link (link)
+  (with-db
+    (clsql:with-transaction ()
+      (clsql:delete-instance-records link))))
+
+(defun get-links ()
+  (with-db 
+    (clsql:select 'link :flatp t)))
+
+(defun get-link-by-id (id)
+  (with-db
+    (first
+     (clsql:select 'link :flatp t
+		   :where [= [id] id]))))
+
+
+(defun get-links-sorted (key)
+  (sort (get-links) #'> :key key))
+
+(defun get-links-most-recent ()
+  (with-db
+    (clsql:select 'link :flatp t
+		  :order-by '(([timestamp] :desc)))))
+
+(defun get-links-highest-rank ()
+  (get-links-sorted #'score))
+
+;; the first page
+;; our page definitions look different now
+(defpage (reddit-home "/") ()  
+  (:html
+   (:head (:title "Reddit in Lisp!"))
+   (:body
+    (:h1 "A Reddit implementation in Common Lisp")
+    (:h2 "Using sbcl and hunchentoot")
+    (:a :href (url 'add-form) "Add new link")
+    " | "
+    (:a :href (url 'new-user-form) "Log in or create a new user")
+    " | "
+    (:a :href (url 'logout) "Log out")
+    (:h3 "Highest Ranking Links")
+    (:ol
+     (display-links (get-links-highest-rank)))
+    (:h3 "Most Recent Links")
+    (:ol
+     (display-links (get-links-most-recent))))))
+
+(defsnippet display-links (links)
+  (dolist (l links)
+    (cl-who:htm (:li (display-link-box l)))))
+
+(defsnippet display-link-box (l)
+  (:div :id (format nil "~Abox" (id l)) 
+	(display-link l)
+	(display-link-age l)
+	(display-link-score l)
+	(display-link-score-control l)))
+
+
+(defsnippet display-link (l)
+  (:a :href (url l)
+      (cl-who:str (title l))))
+
+(defsnippet display-link-age (l)
+  (:span :id (format nil "~Aagebox" (id l))
+	 (cl-who:fmt "Created ~A ago."
+		     (s-utils:format-duration 
+		      (max 1 (age l))))))
+
+(defsnippet display-link-score (l)
+  (:span :id (format nil "~Ascorebox" (id l))
+	 (cl-who:fmt "~A points."
+		     (score l))))
+
+(defsnippet display-link-score-control (l)
+  (:span :id (format nil "~Ascorecontrol" (id l))
+	 (:a :id (format nil "~Aup" (id l)) 
+	     :href (command 'incpoint :id (id l))
+	     "Up")
+	 " "
+	 (:a :id (format nil "~Adown" (id l)) 
+	     :href (command 'decpoint :id (id l))
+	     "Down")))
+
+;; we need a way to add a new link
+;; the new page format
+(defpage (add-form "/add") ()
+  (add-form))
+
+(defsnippet add-form (&optional message)
+  (if (hunchentoot:session-value 'user)
+      (cl-who:htm
+       (:html
+	(:head (:title "Reddit in Lisp! -- Add link"))
+	(:body
+	 (:h1 "Add a new link")
+	 (when message (cl-who:htm (:div (cl-who:str message))))
+	 (:form :action (url 'save-link) :method "post"
+		(:div "title:" (:input :type "text" :name "title"))
+		(:div "url:" (:input :type "text" :name "url"))
+		(:input :type "submit" :value "save")))))
+      (new-user-form "You must log in to add a link.")))
+
+;; we have to define the page to submit to
+(defpage (save-link "/save") ()
+  (let ((title (hunchentoot:parameter "title"))
+	(url (hunchentoot:parameter "url"))
+	(user (hunchentoot:session-value 'user)))
+    ;; why don't we add some validation
+    (cond
+      ((null user)
+       (new-user-form "You must be logged in to add a link."))
+      ((zero-string title)
+       (add-form "The title is required."))
+      ((zero-string url)
+       (add-form "The url is required."))
+      (t
+       (add-rating (create-rating (id user)
+				  (add-link (create-link title url))
+				  1))      
+       (hunchentoot:redirect "/")))))
+
+(defun zero-string (str)
+  (or (null str)
+      (zerop (length str))))
+
+(defpage (incpoint "/incpoints") (id)
+  (with-db
+    (clsql:with-transaction ()
+      (let* ((id (get-integer-param "id"))
+	     (link (get-link-by-id id))
+	     (user (hunchentoot:session-value 'user)))
+	(cond
+	  ((null user)
+	   (new-user-form "You must log in or sign up to rate links."))
+	  ((get-rating-by-userid-and-linkid (id user) (id link))
+	   (hunchentoot:redirect (url 'reddit-home)))
+	  (link
+	   (add-rating (create-rating (id user) (id link) 1))
+	   (hunchentoot:redirect (url 'reddit-home)))
+	  (t
+	   (hunchentoot:redirect (url 'reddit-home))))))))
+
+(defpage (decpoint "/decpoints") (id)
+  (with-db
+    (clsql:with-transaction ()
+      (let* ((id (get-integer-param "id"))
+	     (link (get-link-by-id id))
+	     (user (hunchentoot:session-value 'user)))
+	(cond
+	  ((null user)
+	   (new-user-form "You must log in or sign up to rate links."))
+	  ((get-rating-by-userid-and-linkid (id user) (id link))
+	   (hunchentoot:redirect (url 'reddit-home)))
+	  (link
+	   (add-rating (create-rating (id user) (id link) -1))
+	   (hunchentoot:redirect (url 'reddit-home)))
+	  (t
+	   (hunchentoot:redirect (url 'reddit-home))))))))
+
+(defun get-integer-param (param)
+  (s-utils:parse-integer-safely
+   (hunchentoot:parameter param)))
+
+(clsql:def-view-class user ()
+  ((id
+    :accessor id
+    :initform nil
+    :type integer
+    :db-kind :key
+    :db-constraints (:not-null :auto-increment))
+   (username
+    :accessor username
+    :initarg :username
+    :type string)
+   (password
+    :accessor password
+    :initarg :password
+    :type string)))
+
+(defun create-user (username password)
+  (make-instance 'user :username username :password password))
+
+(defun add-user (user)
+  (with-db
+    (clsql:with-transaction ()
+      (clsql:update-records-from-instance user)
+      (when (null (id user))
+	(setf (slot-value user 'id)
+	      (first
+	       (clsql:query "SELECT MAX(ID) FROM USER" :flatp t)))))))
+
+(defun get-user-by-username (username)
+  (with-db
+    (first
+     (clsql:select 'user :flatp t
+		   :where [ = [ username ] username ]))))
+
+(defun get-user-by-username-and-password (username password)
+  (with-db
+    (first
+     (clsql:select 'user :flatp t
+		   :where [ and [ = [ username ] username ]
+		   [ = [ password ] password ] ]))))
+
+(defpage (new-user-form "/new-user") ()
+  (new-user-form))
+
+
+
+(defsnippet new-user-form (&optional message)
+  (:html
+   (:head (:title "New Reddit User"))
+   (:body
+    (when message (cl-who:htm (:div (cl-who:str message))))
+    (:h1 "Log in")
+    (:form :action (url 'login) :method "post"
+	   (:div "username: " (:input :type "text" :name "username"))
+	   (:div "password: " (:input :type "password" :name "password"))
+	   (:input :type "submit" :value "log in"))
+    (:h1 "Add new user")
+    (:form :action (url 'add-user) :method "post"
+	   (:div "username: " (:input :type "text" :name "username"))
+	   (:div "password: " (:input :type "password" :name "password"))
+	   (:div "repeat: " (:input :type "password" :name "password2"))
+	   (:input :type "submit" :value "sign up")))))
+
+(defpage (add-user "/add-user") ()
+  (let ((username (hunchentoot:parameter "username"))
+	(password (hunchentoot:parameter "password"))
+	(password2 (hunchentoot:parameter "password2")))
+    (cond
+      ((zero-string username)
+       (new-user-form "You must provide a username."))
+      ((get-user-by-username username)
+       (new-user-form "The username you chose already exists."))
+      ((zero-string password)
+       (new-user-form "You must provide a password."))
+      ((not (equal password password2))
+       (new-user-form "The two passwords must match."))
+      (t
+       (add-user (create-user username password))
+       (hunchentoot:redirect (url 'reddit-home))))))
+
+(defpage (login "/login") ()
+  (let* ((username (hunchentoot:parameter "username"))
+	 (password (hunchentoot:parameter "password"))
+	 (user (get-user-by-username-and-password username password)))
+    (cond
+      ((not (and username password))
+       (new-user-form "Both the username and password are required to log in."))
+      ((null user)
+       (new-user-form "Username and password do not match our records."))
+      (t
+       (setf (hunchentoot:session-value 'user)
+	     user)
+       (hunchentoot:redirect (url 'reddit-home))))))
+
+(defpage (logout "/logout") ()
+  (setf (hunchentoot:session-value 'user) nil)
+  (hunchentoot:redirect (url 'reddit-home)))
+
+(clsql:def-view-class rating ()
+  ((id
+    :accessor id
+    :initform nil
+    :type integer
+    :db-kind :key
+    :db-constraints (:not-null :auto-increment))
+   (raterid
+    :accessor raterid
+    :initarg :raterid
+    :type integer)
+   (linkid
+    :accessor linkid
+    :initarg :linkid
+    :type integer)
+   (size
+    :accessor size
+    :initform 1
+    :initarg :size
+    :type integer)
+   (timestamp
+    :accessor timestamp
+    :initform (get-universal-time)
+    :type integer
+    :db-type "bigint")))
+
+(defun create-rating (userid linkid size)
+  (make-instance 'rating :raterid userid :linkid linkid :size size))
+
+(defun add-rating (rating)
+  (with-db
+    (clsql:with-transaction ()
+      (clsql:update-records-from-instance rating)
+      (when (null (id rating))
+	(setf (slot-value rating 'id)
+	      (first
+	       (clsql:query "SELECT MAX(ID) FROM RATING" :flatp t)))))))
+
+(defmethod score ((link link))
+  (with-db
+    (loop for r in (clsql:select 'rating
+				 :where [ = [ linkid ] (id link) ]
+				 :flatp t)
+	 sum (size r))))
+
+(defun get-rating-by-userid-and-linkid (userid linkid)
+  (with-db
+    (first
+     (clsql:select 'rating :where [ and [ = [ raterid ] userid ]
+		   [ = [ linkid ] linkid ] ]
+		   :flatp t))))
+
+
+
+(clsql:locally-disable-sql-reader-syntax)
