@@ -5,8 +5,9 @@
 // @description remove 'width: 740px' of 'viewer'; 'width="728"' of 'image'; enable 'prev' button for vimperator
 // ==/UserScript==
 
+document.getElementById('viewer').scrollIntoView();
 // remove 'width: 740px' of 'viewer'
-var viewer = document.getElementById('viewer')
+var viewer = document.getElementById('viewer');
 viewer.style.width="1456px";
 viewer.style.background="none repeat scroll 0 50% transparent";
 
@@ -21,4 +22,3 @@ var prevs = document.getElementsByClassName('prev_page');
 for (var i = 0; i < prevs.length; i++) {
     prevs[i].innerHTML = '<span></span>previous page';
 }
-document.getElementById('viewer').scrollIntoView()
