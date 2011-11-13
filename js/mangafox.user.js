@@ -21,3 +21,4 @@ var prevs = document.getElementsByClassName('prev_page');
 for (var i = 0; i < prevs.length; i++) {
     prevs[i].innerHTML = '<span></span>previous page';
 }
+document.getElementById('viewer').scrollIntoView()
