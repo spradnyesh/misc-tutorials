@@ -79,5 +79,5 @@
 
 (stefil:in-suite test-problems)
 
-#|(stefil:deftest test-build-board-ok ()
-  (stefil:is (equal '((0 1) (1 3) (2 0) (3 2)) (build-board 4))))|#
+(stefil:deftest test-build-board-ok ()
+  (stefil:is (equalp #((0 1) (1 3) (2 0) (3 2)) (build-board 4))))
