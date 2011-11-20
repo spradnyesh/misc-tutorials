@@ -2,58 +2,61 @@
   (first queen))
 (defun column (queen)
   (second queen))
-(defun kth-queen (queens k)
-  (aref queens k))
 
-(defun init-Q-positions (queens)
-  (dotimes (i (length queens))
-    (setf (aref queens i) (list i 0))))
-(defun move-queen (queens k position)
-  (setf (aref queens k) (list k position)))
-(defun move-queen-forward (queens k)
-  (move-queen queens k (1+ (column (kth-queen queens k)))))
-(defun move-queen-to-1st-column (queens k)
-  (move-queen queens k 0))
-
-(defun same-column? (i j)
-  (when (= (column i)
-           (column j))
-    t))
-(defun same-diagonal? (i j)
-  (= (abs (- (column i) (column j)))
-     (abs (- (row i) (row j)))))
-;; is the k'th Q under attack from the previous ones?
-;; k'th Q is under attack if:
-;;     1. it can't be in same row, as i'th Q is in i'th row
-;;     2. one of the previous Q is in the same column
-;;     3. one of the previous Q is in the same diagonal
-;; else: nil/false (Q isn't under attack)
-(defun under-attack? (queens k)
-  (dotimes (i k)
-    (cond ((same-column? (kth-queen queens i) (kth-queen queens k)) (return t))
-          ((same-diagonal? (kth-queen queens i)(kth-queen queens k)) (return t)))))
-(defun retrace (queens i n)
-  (if (< (column (kth-queen queens i))
-         (1- n))
-      (move-queen-forward queens i)          ; there is place to move forward
-      (progn              ; no place to move forward, retrace back 1 Q
-        (move-queen-to-1st-column queens i)
-        (setf i (1- i))
-        (retrace queens i n))))
 (defun build-board (n &aux (queens (make-array n)))
-  (init-Q-positions queens)
-  (do ((i 1)) ; start from the 2nd Q
+  (defun init-Q-positions ()
+    (dotimes (i (length queens))
+      (setf (aref queens i) (list i 0))))
+  (defun kth-queen (k)
+    (aref queens k))
+
+  (defun move-queen (k position)
+    (setf (aref queens k) (list k position)))
+  (defun move-queen-forward (k)
+    (move-queen k (1+ (column (kth-queen k)))))
+  (defun move-queen-to-1st-column (k)
+    (move-queen k 0))
+
+  ;; is the k'th Q under attack from the previous ones?
+  ;; k'th Q is under attack if:
+  ;;     1. it can't be in same row, as i'th Q is in i'th row
+  ;;     2. one of the previous Q is in the same column
+  ;;     3. one of the previous Q is in the same diagonal
+  ;; else: nil/false (Q isn't under attack)
+  (defun under-attack? (k)
+    (defun same-column? (i j)
+      (when (= (column i)
+               (column j))
+        t))
+    (defun same-diagonal? (i j)
+      (= (abs (- (column i) (column j)))
+         (abs (- (row i) (row j)))))
+
+    (dotimes (i k)
+      (cond ((same-column? (kth-queen i) (kth-queen k)) (return t))
+            ((same-diagonal? (kth-queen i)(kth-queen k)) (return t)))))
+  (defun retrace (i n)
+    (if (< (column (kth-queen i))
+           (1- n))
+        (move-queen-forward i) ; there is place to move forward
+        (progn            ; no place to move forward, retrace back 1 Q
+          (move-queen-to-1st-column i)
+          (setf i (1- i))
+          (retrace i n))))
+
+  (init-Q-positions)
+  (do ((i 1))                           ; start from the 2nd Q
       ((= i n) queens)
-    (if (under-attack? queens i)
-         ; Q is under attack
-        (if (< (column (kth-queen queens i))
+    (if (under-attack? i)
+                                        ; Q is under attack
+        (if (< (column (kth-queen i))
                (1- n))
-            (move-queen-forward queens i) ; there is place to move forward
-            (progn ; no place to move forward, retrace back 1 Q
-              (move-queen-to-1st-column queens i)
+            (move-queen-forward i) ; there is place to move forward
+            (progn        ; no place to move forward, retrace back 1 Q
+              (move-queen-to-1st-column i)
               (setf i (1- i))
-              (retrace queens i n)))
-        ; Q isn't under attack, move to the next Q
+              (retrace i n)))
+                                        ; Q isn't under attack, move to the next Q
         (setf i (1+ i)))))
 
 
