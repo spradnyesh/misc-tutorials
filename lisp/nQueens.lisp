@@ -37,9 +37,8 @@
         (retrace i n))))
 
 (defun same-column? (i j)
-  (when (= (column i)
-           (column j))
-    t))
+  (= (column i)
+            (column j)))
 (defun same-diagonal? (i j)
   (= (abs (- (column i) (column j)))
      (abs (- (row i) (row j)))))
@@ -60,11 +59,11 @@
   (do ((i 1)) ; start from the 2nd Q
       ((>= (column (kth-queen 0)) (/ n 2)) result)
     (if (under-attack? i)
-        ; Q is under attack
+        ; Q is under attack, so retrace back
         (setf i (retrace i n))
         ; Q isn't under attack, so if this is the last Q
         ;     then append current board-position to result and continue
-        ;     else move to the next Q
+        ;     else move to the Q in the next row
         (if (= i (1- n))
             (progn
               (setf result (append result (list (copy-seq *queens*))))
