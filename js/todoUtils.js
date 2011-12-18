@@ -1,3 +1,15 @@
+function length(o) {
+    var l = 0;
+    for (var i in o)
+        l++;
+    return l;
+}
+
+function getDateTime(t) {
+    var dt = new Date(parseInt(t));
+    return dt.toDateString() + " " + dt.toTimeString();
+}
+
 //http://html5demos.com/js/h5utils.js
 var addEvent = (function () {
     if (document.addEventListener) {
@@ -32,9 +44,7 @@ function empty(o) {
     return true;
 }
 
-function length(o) {
-    var l = 0;
-    for (var i in o)
-        l++;
-    return l;
+http://andrewpeace.com/javascript-is-array.html
+function is_array(input){
+    return typeof(input)=='object'&&(input instanceof Array);
 }
