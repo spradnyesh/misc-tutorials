@@ -5,12 +5,13 @@
                 var li, dt, c, i, il;
 
                 li = '<li class = "' + node["name"] + '"><span>' + node["name"] + '</span>';
-                li += '<input class="add-todo" type="button" value="Add Task"/>';
-                li += '<input class="delete-todo" type="button" value="Delete Task"/>';
+                li += '<input class="todo-subtask" type="text" placeholder="What more do you want to do?"/>';
+                li += '<input class="add-todo" type="button" value="Add New Subtask"/>';
+                li += '<input class="delete-todo" type="button" value="Delete This Task"/>';
 
                 // time
                 dt = node["datetime"];
-                li += '<ul clas="datetime"><span>Clock</span>';
+                li += '<ul clas="datetime"><span>Clock</span><input class="start-todo" type="button" value="Start Task"/>';
                 for (i = 0, il = dt.length; i < il; i++) {
                     li += '<li><input type="text" name="from" value="' + getDateTime(dt[i]["from"]) + '" disabled="disabled"/>';
                     li += '<input type="text" name="to" value="' + getDateTime(dt[i]["to"]) + '" disabled="disabled"/></li>';
@@ -85,7 +86,7 @@
             return json;
         }
 
-        var todoItems = [];
+        var todoItems = [], parent;
 
         function populateTodoList() {
             if (todo = localStorage.getItem('todoItems')) {
@@ -100,16 +101,12 @@
             localStorage.setItem('todoItems', JSON.stringify(todoItems));
         }
 
-        function deleteNode(that) {
-            var node, todoNodes, tokens, parent, index;
-
-            // remove node from DOM
-            node = that.parentNode;
-            node.parentNode.removeChild(node);
-
-            // remove node from todoItems
+        function findParentAndIndex(node) {
+            var todoNodes, tokens, index;
             tokens = node.className.split('.');
             todoNodes = parent = todoItems;
+
+            // for every element in 'tokens', go 1 level deeper into 'todoItems'
             for (var i = 0, il = tokens.length; i < il; i++) {
                 var jl = todoNodes.length;
                 for (var j = 0; j < jl; j++) {
@@ -121,17 +118,82 @@
                     }
                 }
             }
-            delete parent[index];
+            return index;
+        }
+
+        function findLargestChildId(node) {
+            return node.children[node.children.length - 1].id;
+        }
+
+        function getTaskName(node) {
+            for (var i = 0, c = node.childNodes, il = c.length; i < il; i++) {
+                if (c[i].className == "todo-subtask") {
+                    return c[i].value;
+                }
+            }
+        }
+
+        function createJsonNode(id, name) {
+            return JSON.parse('{"id": "' + id + '", "name": "' + name + '", "children": [], "datetime": []}');
+        }
+
+        /**
+            that: 'add' button
+            node: li that is parent of button
+         */
+        function addNode(that) {
+            var node, jsonNode, id, name, index, li;
+
+            node = that.parentNode;
+            id = findLargestChildId(node) + 1;
+            name = getTaskName(node);
+            if (name == '') {
+                alert('Please give your task a name');
+                return false;
+            }
+
+            // add node to todoItems
+            index = findParentAndIndex(node);
+            jsonNode = createJsonNode(id, name);
+            parent[index].children.push(jsonNode);
+
+            // add node to DOM
+            li = drawNode(jsonNode);
+            // the next 3 lines of code are needed to convert a string ('<li>...</li>') into a DOM node
+            var div = document.createElement('div');
+            div.innerHTML = li;
+            li = div.firstChild;
+            node.appendChild(li);
+        }
+
+        /**
+            that: 'delete' button
+            node: li that is parent of button
+            parent: li's parent
+         */
+        function deleteNode(that) {
+            var node, index;
+
+            // remove node from DOM
+            node = that.parentNode;
+            node.parentNode.removeChild(node);
+
+            // remove node from todoItems
+            index = findParentAndIndex(node);
+            parent.splice(index, 1);
 
             // store updated todoItems to localStorage
             storeTodoList();
         }
 
-        function addTodoEvents() {
+        function addTodoAddEvents() {
             for (var i = 0, s = document.querySelectorAll('.add-todo'), l = s.length; i < l; i++) {
                 addEvent(s[i], 'click', function () {
+                    addNode(this);
                 });
             }
+        }
+        function addTodoDeleteEvents() {
             for (var i = 0, s = document.querySelectorAll('.delete-todo'), l = s.length; i < l; i++) {
                 addEvent(s[i], 'click', function () {
                     deleteNode(this);
@@ -152,7 +214,8 @@
             var ulTodoItems = document.querySelector('#todo-items');
             ulTodoItems.parentNode.replaceChild(ul, ulTodoItems);
 
-            addTodoEvents();
+            addTodoAddEvents();
+            addTodoDeleteEvents();
         })();
     }
 })();
