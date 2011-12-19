@@ -4,13 +4,13 @@
             if (!empty(node)) {
                 var li, dt, c, i, il;
 
-                li = '<li><span class = "">' + node["name"] + '</span>';
+                li = '<li class = "' + node["name"] + '"><span>' + node["name"] + '</span>';
                 li += '<input class="add-todo" type="button" value="Add Task"/>';
-                li += '<input class="delete-todo" type="button" value="Delete this Task"/>';
+                li += '<input class="delete-todo" type="button" value="Delete Task"/>';
 
                 // time
                 dt = node["datetime"];
-                li += '<ul><span>Clock</span>';
+                li += '<ul clas="datetime"><span>Clock</span>';
                 for (i = 0, il = dt.length; i < il; i++) {
                     li += '<li><input type="text" name="from" value="' + getDateTime(dt[i]["from"]) + '" disabled="disabled"/>';
                     li += '<input type="text" name="to" value="' + getDateTime(dt[i]["to"]) + '" disabled="disabled"/></li>';
@@ -19,7 +19,7 @@
 
                 // drawNode for every child
                 c = node["children"];
-                li += '<ul><span>Subtasks</span>';
+                li += '<ul class="children"><span>Subtasks</span>';
                 for (i = 0, il = c.length; i < il; i++) {
                     li += drawNode(c[i]);
                 }
@@ -33,18 +33,18 @@
         function getTestTodoList() {
             var json = [{"id": "0",
                          "name": "0",
-                         "children": [{"id": "0.0",
+                         "children": [{"id": "0",
                                        "name": "0.0",
-                                       "children": [{"id": "0.0.0",
+                                       "children": [{"id": "0",
                                                      "name": "0.0.0",
                                                      "children": [],
                                                      "datetime": []}],
                                        "datetime": []},
-                                      {"id": "0.1",
+                                      {"id": "1",
                                        "name": "0.1",
                                        "children": [],
                                        "datetime": []},
-                                      {"id": "0.2",
+                                      {"id": "2",
                                        "name": "0.2",
                                        "children": [],
                                        "datetime": []}],
@@ -52,15 +52,15 @@
                                       {"from": "1324194595840", "to": "1324194631166"}]},
                         {"id": "1",
                          "name": "1",
-                         "children": [{"id": "1.0",
+                         "children": [{"id": "0",
                                        "name": "1.0",
                                        "children": [],
                                        "datetime": []},
-                                      {"id": "1.1",
+                                      {"id": "1",
                                        "name": "1.1",
                                        "children": [],
                                        "datetime": []},
-                                      {"id": "1.2",
+                                      {"id": "2",
                                        "name": "1.2",
                                        "children": [],
                                        "datetime": []}],
@@ -68,15 +68,15 @@
                                       {"from": "1324194595840", "to": "1324194631166"}]},
                         {"id": "2",
                          "name": "2",
-                         "children": [{"id": "2.0",
+                         "children": [{"id": "0",
                                        "name": "2.0",
                                        "children": [],
                                        "datetime": []},
-                                      {"id": "2.1",
+                                      {"id": "1",
                                        "name": "2.1",
                                        "children": [],
                                        "datetime": []},
-                                      {"id": "2.2",
+                                      {"id": "2",
                                        "name": "2.2",
                                        "children": [],
                                        "datetime": []}],
@@ -89,26 +89,41 @@
 
         function populateTodoList() {
             if (todo = localStorage.getItem('todoItems')) {
-                console.log(todo);
                 todoItems = JSON.parse(todo);
-                console.log(todoItems);
             } else {
                 todoItems = getTestTodoList();
             }
-            todoItems = getTestTodoList();
+            //todoItems = getTestTodoList();storeTodoList();
         }
 
         function storeTodoList() {
-            console.log(todoItems);
-            var s = JSON.stringify(todoItems);
-            console.log(s);
-            localStorage.setItem('todoItems', s);
+            localStorage.setItem('todoItems', JSON.stringify(todoItems));
         }
 
         function deleteNode(that) {
-            var node = that.parentNode;
+            var node, todoNodes, tokens, parent, index;
+
+            // remove node from DOM
+            node = that.parentNode;
             node.parentNode.removeChild(node);
 
+            // remove node from todoItems
+            tokens = node.className.split('.');
+            todoNodes = parent = todoItems;
+            for (var i = 0, il = tokens.length; i < il; i++) {
+                var jl = todoNodes.length;
+                for (var j = 0; j < jl; j++) {
+                    if (todoNodes[j].id == tokens[i]) {
+                        parent = todoNodes;
+                        index = j
+                        todoNodes = todoNodes[j].children;
+                        break;
+                    }
+                }
+            }
+            delete parent[index];
+
+            // store updated todoItems to localStorage
             storeTodoList();
         }
 
@@ -133,8 +148,9 @@
             for (var i = 0, il = todoItems.length; i < il; i++) {
                 ul.innerHTML += drawNode(todoItems[i]);
             }
-            todoItems = document.querySelector('#todo-items');
-            todoItems.parentNode.replaceChild(ul, todoItems);
+
+            var ulTodoItems = document.querySelector('#todo-items');
+            ulTodoItems.parentNode.replaceChild(ul, ulTodoItems);
 
             addTodoEvents();
         })();
