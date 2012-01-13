@@ -1,0 +1,7 @@
+(defun p002 ()
+  (do ((sum 0 (if (zerop (mod b 2))
+                  (+ sum b)
+                  sum))
+       (a 1 b)
+       (b 2 (+ a b)))
+      ((> b 4000000) sum)))
