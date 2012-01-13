@@ -1,3 +1,9 @@
+(defun n-lcm (n)
+  (do ((rslt 1 (* rslt (/ i (gcd rslt i))))
+       (i 2 (1+ i)))
+      ((= i n) rslt)))
+
+;;;; wrong
 (defun helper (n k s)
   (cond ((= k s) t)
         ((and (> k 1)
@@ -10,7 +16,7 @@
   (if (is-prime (1+ k))
       (1+ k)
       (next-prime (1+ k))))
-(defun p005 (n)
+(defun p005-1 (n)
   (let ((product 1))
     ;; find product of all prime numbers < n as our starting point
     (do ((cur-prime 2 (next-prime cur-prime)))
@@ -30,8 +36,8 @@
         (format t "~A ~A ~A~%" product i (gcd product i))
         (setf product (* product (gcd product i)))))))
 
-
-#|(defun p005-1 (n)
+;;;; wrong
+(defun p005 (n)
   (let ((product 1))
     (dotimes (i n)
       (let* ((j (1+ i))
@@ -41,4 +47,4 @@
         (if (< j (/ l g))
             (setf product (* product j))
             (setf product (* product (/ l g))))))
-    product))|#
+    product))
