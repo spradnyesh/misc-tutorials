@@ -1,17 +1,42 @@
 ;;;; http://rubyquiz.com/quiz1.html
 
 (defun groupify (str)
-  ;; split on " " and then concatenate before splitting into groups of 5
-  (let* ((rslt (apply #'concatenate 'string
-                       (split-sequence:SPLIT-SEQUENCE " " str :test 'string-equal)))
-         (l (length rslt)))
-    ;; append trailing "x" to make rslt length a multiple of 5
-    (unless (zerop (mod l 5))
-      (dotimes (i (mod l 5))
-        (setf rslt (concatenate 'string rslt "x"))))
-    ))
-(defun char->num (char))
-(defun num->char (num))
+  (flet ( ;; split on " " and then concatenate (remove intermittent #\Space)
+         (remove-intermittent-spaces (str)
+           (apply #'concatenate 'string
+                  (split-sequence:SPLIT-SEQUENCE " " str :test 'string-equal)))
+         ;; append trailing "x" to make str length a multiple of 5
+         (pad-x (str)
+           (let ((l (length str)))
+             (unless (zerop (mod l 5))
+               (dotimes (i (- 5 (mod l 5)))
+                 (setf str (concatenate 'string str "x"))))
+             str))
+         ;; split into groups of 5 characters
+         (split-5 (str)
+           (let ((rslt nil)
+                 (l (length str))
+                 (tmp ""))
+             (dotimes (i l)
+               (setf tmp (concatenate 'string tmp (string (aref str i))))
+               (when (zerop (mod (1+ i) 5))
+                 (push (copy-seq tmp) rslt)
+                 (setf tmp "")))
+             (reverse rslt))))
+    (split-5 (pad-x (remove-intermittent-spaces str)))))
+(defun char->num (char)
+  ;; 1st convert the char into a string
+  ;; so that the string-to-octets function can be used
+  (aref (string-to-octets (string char)) 0))
+(defun num->char (num)
+  (code-char num))
+(defun add-num-26 (a b)
+  (let ((sum (+ a b)))
+    (if (> sum 26)
+        (- sum 26)
+        sum)))
+(defun sub-num-26 (a b)
+  (if (< a b)
+      (- (+ a 26) b)
+      (- a b)))
 (defun solitaire (char))
-(defun add-num (a b))
-(defun sub-num (a b))
