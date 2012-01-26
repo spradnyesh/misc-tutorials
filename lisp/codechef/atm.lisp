@@ -1,0 +1,6 @@
+(let ((x (read))
+      (y (read)))
+  (if (or (> (+ x 0.5) y)
+          (not (zerop (mod x 5))))
+      (format t "~,2f~%" y)
+      (format t "~,2f~%" (- y (+ x 0.5)))))
