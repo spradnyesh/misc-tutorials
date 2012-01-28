@@ -1,0 +1,7 @@
+(let ((n (read))
+      (lst nil))
+  (dotimes (i n)
+    (push (read) lst))
+  (setf lst (sort lst #'<))
+  (dotimes (i n)
+    (format t "~A~%" (nth i lst))))
