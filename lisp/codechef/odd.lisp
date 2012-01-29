@@ -36,6 +36,6 @@
                          (setf (aref temp-arr i) (aref arr (1+ (* i 2)))))
                        (setf arr temp-arr)))
     (aref arr 0)))
-#|(let ((n (read)))
+(let ((n (read)))
   (dotimes (i n)
-    (format t "~A~%" (trim (read)))))|#
+    (format t "~A~%" (trim (read)))))
