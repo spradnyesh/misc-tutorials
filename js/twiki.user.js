@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name Pradnyesh's script for removing the left panel of twiki.cyc
 // @namespace http://www.spradnyesh.org
-// @match http://twiki.corp.yahoo.com/view/*
+// @match http://*wiki.corp.yahoo.com/view/*
 // @description remove '#patternLeftBar'
 // ==/UserScript==
 
