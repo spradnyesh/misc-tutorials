@@ -4,6 +4,12 @@
 ;; r: rate of interest (of deposit/loan)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; utils
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun average (&rest numbers)
+  (/ (apply #'+ numbers) (length numbers)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; simple interest
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun si-fv (pv r n)
@@ -88,14 +94,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Net Present Value (NPV) and Internal Rate of Return (IRR)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun npv (c0 r &rest c1-n)
-  (let ((len (length c1-n)))
-    (do* ((i 0 (1+ i))
-          (c (nth i c1-n) (nth i c1-n))
-          (factor (/ c (expt (1+ r) (1+ i))))
-          (rslt factor (+ rslt factor)))
-         ((>= i len) (- rslt c0))
-      (format t "~a: ~a, ~a, ~a~%" i c (/ c (expt (1+ r) (1+ i))) rslt))))
+(defun n-pv (c0 r &rest c1-n)
+  (let ((len (length c1-n))
+        (rslt 0))
+    (dotimes (i len)
+      (setf rslt (+ rslt (/ (nth i c1-n) (expt (1+ r) (1+ i))))))
+    (- rslt c0)))
+(defun irr (c0 &rest c1-n)
+  (do ((steps 0 (1+ steps))
+       (prev-r 1 r)
+       (prev-npv -1 npv)
+       (npv 1 (apply #'n-pv c0 r c1-n))
+       (r 0 (if (or (and (< prev-npv 0) (< npv 0))
+                    (and (> prev-npv 0) (> npv 0)))
+                ;; both prev-npv and npv have same sign (+ve or -ve),
+                ;; so r should decrease to bring it nearer to 0
+                (- r (average r prev-r))
+                ;; else, r should increase
+                (+ r (average r prev-r)))))
+      ((or (= steps 10)
+           (zerop npv)) r)
+    (format t "~a ~a ~a ~a~%" r prev-r prev-npv npv)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lecture problems
