@@ -1,3 +1,8 @@
+;;; Key
+;; pv: Present Value
+;; fv: Future Value
+;; r: rate of interest (of deposit/loan)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; simple interest
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -79,6 +84,18 @@
 (defun pmt-for-ppv (pv r &optional (g 0))
   (unless (= r g)
     (* pv (- r g))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Net Present Value (NPV) and Internal Rate of Return (IRR)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun npv (c0 r &rest c1-n)
+  (let ((len (length c1-n)))
+    (do* ((i 0 (1+ i))
+          (c (nth i c1-n) (nth i c1-n))
+          (factor (/ c (expt (1+ r) (1+ i))))
+          (rslt factor (+ rslt factor)))
+         ((>= i len) (- rslt c0))
+      (format t "~a: ~a, ~a, ~a~%" i c (/ c (expt (1+ r) (1+ i))) rslt))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lecture problems
