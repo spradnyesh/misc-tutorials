@@ -100,21 +100,29 @@
     (dotimes (i len)
       (setf rslt (+ rslt (/ (nth i c1-n) (expt (1+ r) (1+ i))))))
     (- rslt c0)))
+
+;; http://en.wikipedia.org/wiki/Internal_rate_of_return#Numerical_solution
 (defun irr (c0 &rest c1-n)
-  (do ((steps 0 (1+ steps))
-       (prev-r 1 r)
-       (prev-npv -1 npv)
-       (npv 1 (apply #'n-pv c0 r c1-n))
-       (r 0 (if (or (and (< prev-npv 0) (< npv 0))
-                    (and (> prev-npv 0) (> npv 0)))
-                ;; both prev-npv and npv have same sign (+ve or -ve),
-                ;; so r should decrease to bring it nearer to 0
-                (- r (average r prev-r))
-                ;; else, r should increase
-                (+ r (average r prev-r)))))
-      ((or (= steps 10)
-           (zerop npv)) r)
-    (format t "~a ~a ~a ~a~%" r prev-r prev-npv npv)))
+  (let* ((n (length c1-n))
+         (a (apply #'+ c1-n))
+         (p (/ (log (/ a (abs c0)))
+               (log (/ a (apply #'n-pv c0 1 c1-n))))))
+    (do* ((steps 0 (1+ steps))
+          (r.n-1 (1- (expt (/ a (abs c0))
+                           (/ 2 (1+ n))))
+                 r.n)
+          (r.n (1- (expt (1+ r.n-1) p))
+               r.n+1)
+          (npv.n-1 (apply #'n-pv c0 r.n-1 c1-n)
+                   npv.n)
+          (npv.n (apply #'n-pv c0 r.n c1-n)
+                 npv.n+1)
+          (r.n+1 (- r.n (* npv.n (/ (- r.n r.n-1) (- npv.n npv.n-1))))
+                 (- r.n (* npv.n (/ (- r.n r.n-1) (- npv.n npv.n-1)))))
+          (npv.n+1 (apply #'n-pv c0 r.n+1 c1-n)
+                   (apply #'n-pv c0 r.n+1 c1-n)))
+         ((or (= steps 50)
+              (zerop npv.n+1)) (realpart r.n+1)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lecture problems
