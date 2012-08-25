@@ -1,7 +1,93 @@
-;;; Key
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; notes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; week 4 (npv, irr, decision making)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+-- to find the cost of 2 machines m1 & m2 w/ different capex, maintainance fees and lives:
+    1. find npv
+    2. find pmt
+    3. compare
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; week 5 (bonds)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+-- zero-coupon bonds *always* trade/sell at discount (ie pv < fv) coz it's ci-pv (there ain't any coupons/pmt)
+-- at maturity
+  -- zero-coupon: i get only fv
+  -- coupon: i get both fv and last pmt => fv + pmt
+-- long term bonds are more sensitive (since r2 can vary a lot), and hence get a higher r1 (as compared to a short term bond)
+-- coupon-rate => r1, yield-to-maturity => r2
+-- price (pv) is *inversely proportional* to market rate (r2). this is because when r2 > r1, i can sell bond and invest money elsewhere, so bond is not really that valuable (and hence (selling/buying) price is low); and vice-versa
+  -- when pv > fv (coz r1 > r2) => trading at premium
+  -- when pv < fv (coz r1 < r2) => trading at discount
+  -- when pv = fv (coz r1 = r2) => trading at par (or at face-value)
+-- govt bonds are also called 'no-default' or 'risk-free' bonds since we expect the govt to pay the face-value at end of maturity (and coupons every 6 months) _w/o failure_
+-- the uncertainty concerning bond values/prices due to interest rates fluctuations is known as the 'interest rate risk' of bonds
+  -- 2 types of 'interest rate risk'
+    -- 'price risk'
+      -- for a 10 yrs (20 periods) bond, i know both P0 (pv, based on r1 and fv defined in contract/bond) and P20 (fv, already defined in contract/bond), but it's not possible to find P10 (price after 5 yrs), coz r2 is fluctuating
+      -- even a zero-coupon bond has price risk at all points before maturity
+      -- P10 = PV (pmt = 30, n = 10, fv = 1000, r = ?) => P10 decreases as r increases
+    -- 'coupon reinvestment risk'
+      -- since the ytm is changing continuously, i don't know at what rate will my coupon can be re-invested. this risk is called the coupon reinvestment risk
+      -- this risk is absent in 'zero coupon bond', simply b'coz there ain't any coupon to reinvestment
+      -- P10 = PV (pmt = 30, n = 10, fv = 1000, r = ?) => decreases as r increases
+               + fv10 (pmt = 30, n = 10, r = ?) => the re-invested 10 coupons from the last 5 yrs => increases as r increases
+    -- the only instrument that does not have any risk is a 'zero coupon bond' that is _held until maturity_
+      -- risk (price risk) is there only if it is sold earlier than maturity
+-- corporate bonds and default risk
+  -- like govt bonds, they are subject to 'interest rate risk'
+  -- almost always pay coupons
+  -- unlike govt bonds, they are subject to 'default risk'
+    -- rating agencies rates corporate bonds against defaulting (not paying the coupon and/or fv)
+  -- most bonds are contracts/loans issued by a bank
+  -- for 2 identical bonds (same maturities, coupon rates, fv) b/n a govt bond and a corporate bond, the corporate bond will have lesser price (pv), coz it has a higher risk (default risk). why should i pay higher for a bond that may default (has a higher risk)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; week 6 (stocks)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+-- when n -> infinite, the value of P_n -> 0, so stock-pv = (sum_i:0->inf (/ div_i (expt (1+ r) i)))
+-- assume perpetuities (not annuities) in calculations, coz most ideas are (assumed to be) long term
+-- ICPS: Invested Capital Per Share
+-- ROI (Return On Investment = IRR) > 0
+-- EPS (Earnings Per Share) = ICPS * ROI
+-- EPS (Earnings Per Share) is the same as CFPS (Cash Flow Per Share)
+  -- EPS = Dividend + RE (Retained Earnings)
+    -- Div/EPS => (1 - b), RE/EPS => b
+    -- b => re-invested in the company for growth
+    -- g = b * ROI => engine of growth
+-- theoritically: PV of a share = ((EPS / r) + PVGO), where PVGO: PV of (future) growth opportunities
+  -- p0 = PV (div)
+    -- no-growth:-
+      -- p0 = div/r = EPS/r (here, div = eps, since there is no 'b' which is being re-invested in growth)
+    -- growth (can only happen when b > 0):-
+      -- PVGO => difference of 'firm w/ growth' and 'firm w/o growth'
+      -- when b = 0 => g = 0 => p0 = div/(r - g) = div/r (same as p0 w/o growth (see above))
+-- important funda about growth
+  -- by having b > 0, ie having growth, what is really growing is the Cash Flow, or EPS; but
+  -- if r > IRR (or ROI), then the value of the share (p0) is really decreasing
+    -- see examples p.6.6 (w/o growth) => 50 and p.6.7 (w/ roi=.10, b=.7, r=.12) => 36, below
+    -- it would've made more sense to invest the b in another investment giving back r ;)
+    -- this issue is caused coz management sees the incomplete world (IRR only) and not that IRR < r :(
+  -- otoh, if r < IRR (or ROI), then the value of the share (p0) is really increasing
+    -- see examples p.6.6 (w/o growth) => 50 and p.6.8 (w/ roi=.14, b=.5, r=.12) => 84, below
+  -- note that g (= b * roi) is the same in both 6.7 and 6.8
+    -- *** what the management should look at is the comparison b/n IRR and r, and not fixate on g
+-- share market
+  -- market-cap = price-per-share * #shares
+  -- value-of-company = market-cap - debt
+  -- EPS (accounting) != EPS (finance)
+"
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; formulae
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; pv: Present Value
-;; fv: Future Value
+;; fv: Future Value (or Face Value in case of bonds)
 ;; r: rate of interest (of deposit/loan)
+;; n: #periods
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utils
@@ -61,7 +147,14 @@
 
 ;; annuity w/ growth (If the first cash flow is C, the next one will be C(1+g), and so on, where g is the growth rate in cash flow)
 (defun a-pv-growth (pmt r n g)
-  (* pmt (/ 1 (- r g)) (- 1 (/ (expt (1+ g) n) (expt (1+ r) n)))))
+  (if (> r g)
+      (* pmt (/ 1 (- r g)) (- 1 (/ (expt (1+ g) n) (expt (1+ r) n))))
+      (let ((rslt 0)
+            (c pmt))
+        (dotimes (i 100)
+          (setf rslt (+ rslt (/ c (/ 1 (expt (1+ r) (1+ i))))))
+          (setf c (* c (1+ g))))
+        rslt)))
 
 ;; k: #periods in a year (12 for monthly, 4 for quarterly, etc)
 (defun effective-annual-rate (r k)
@@ -88,12 +181,11 @@
 ;; perpetuities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun p-pv (pmt r &optional (g 0))
-  (unless (= r g)
-    (/ pmt (- r g))))
+  (growth-stock-pv pmt r g 100000))
 
+;; TODO
 (defun pmt-for-ppv (pv r &optional (g 0))
-  (unless (= r g)
-    (* pv (- r g))))
+  (declare (ignore pv r g)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Net Present Value (NPV) and Internal Rate of Return (IRR)
@@ -129,10 +221,89 @@
               (zerop npv.n+1)) (realpart r.n+1)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; bonds
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; yeild-to-maturity (r) of a zero-coupon bond
+;; this is the same as the 'r' of a compound-interest investment
+(defun ytm (pv fv n)
+  (1- (expt (/ fv pv) (/ 1 n))))
+
+;; r1: r for coupon (decided at time when contract was made by govt, cannot change over tenure) => coupon-rate
+;; r2: r for market rate (decided by market, may change over tenure) => yield-to-maturity
+(defun coupon-pv (fv n r1 &optional (r2 r1))
+  ;; adjust n and r for 6 months (in US) PMT, instead of 1 yr
+  (let* ((n (* n 2))
+         (r1 (/ r1 2))
+         (r2 (/ r2 2))
+         (pmt (* fv r1)))
+    (+ (a-pv pmt r2 n)
+       (ci-pv fv r2 n))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; stocks
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun stock-pv (fv r &rest div)
+  (let ((n (length div))
+        (rslt 0))
+    (dotimes (i n)
+      (setf rslt (+ rslt (/ (nth i div)
+                            (expt (1+ r) (1+ i))))))
+    (+ rslt (/ fv (expt (1+ r) n)))))
+
+;; 'dividend-stock' are stocks where dividends are surely paid and of same value every time
+(defun dividend-stock-perpetuity-pv (div r)
+  (/ div r))
+
+(defun dividend-stock-annuity-pv (div r n)
+  (a-pv div r n))
+
+;; div: 1st div ((i+1)_th = (* i_th (1+ g)))
+(defun growth-stock-pv (div r g &optional (n 100))
+  (if (> r g)
+      (/ div (- r g))
+      (let ((divs nil)
+            (c div))
+        (dotimes (i n)
+          (push c divs)
+          (setf c (* c (1+ g))))
+        (apply #'stock-pv 0 r divs))))
+
+(defun growth-stock-pv-2 (cps roi r b)
+  (growth-stock-pv (* (- 1 b) cps roi) r (* b roi)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lecture problems
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun p3.10 ()
   (pmt-for-afv (ci-pv (a-pv 100000 .08 20) .08 10) .08 20))
+
+(defun p.6.6 ()
+  (let ((roi .1)
+        (cps 60)
+        (r .12)                         ; market-capitalization-rate
+        (b 0))
+    (growth-stock-pv-2 cps roi r b)))
+
+(defun p.6.7 ()
+  (let ((roi .1)
+        (cps 60)
+        (r .12)
+        (b .7))
+    (values (* b roi)
+            (growth-stock-pv-2 cps roi r b))))
+
+(defun p.6.8 ()
+  (let* ((roi .14)
+         (cps 60)
+         (r .12)
+         (b .5)
+         (div (* b (* .1 cps)))    ; picked up the same div from p.6.6
+         (pv.6.6 (p.6.6)))         ; => 50
+    (values (* b roi)
+            (/ (-
+                (growth-stock-pv div r (* b roi)) ; => 60
+                pv.6.6)
+               pv.6.6))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assignment problems
