@@ -280,13 +280,6 @@
   (growth-stock-pv (* (- 1 b) cps roi) r (* b roi)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; excel functions that i cannot replicate here :(
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun excel-rate (n div pv fv)
-  (declare (ignore n div pv fv))
-  0)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lecture problems
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun p3.10 ()
@@ -413,8 +406,8 @@
          (fv 100000)
          (pv 89793)
          (div (* fv r1)))
-    (* 2 100 (+ (excel-rate n div (- pv) fv)
-                3.56)))) ; answer obtained from excel
+    (declare (ignore div n pv))
+    (* 2 (+ 3.56 #|(excel-rate n div (- pv) fv)|#))))
 (defun a.5.a.7 ()
   nil)
 (defun a.5.a.8 ()
@@ -440,13 +433,27 @@
          (n (* 10 2))
          (ytm-zero 0)
          (ytm-coupon 0))
+    (declare (ignore fv-coupon div))
     (setf ytm-zero (* 2 100 (ytm pv fv-zero n)))
     (format t "~f, " ytm-zero)
-    (setf ytm-coupon (+ (excel-rate n div pv fv-coupon)
-                        (* 2 5.16)))
+    (setf ytm-coupon (* 2 (+ 5.16 #|(excel-rate n div pv fv-coupon)|#)))
     (format t "~f, " ytm-coupon)
-    ))
-(defun a.5.a.10 ())
+    (min ytm-zero ytm-coupon)))
+(defun a.5.a.10 ()
+  (let ((fv 1000000)
+        (div 3000) ; (= (/ 6000 2)
+        (n1 20) ; original period (= (* 10 2))
+        (n2 10) ; 5 yrs have passed (= (* 5 2))
+        (cr .025) ; remaining coupons will accrue an annual interest of 'cr' and will be paid lump-sum at end of maturity
+        (r1 .035) ; original discount rate
+        (r2 .075) ; new discount rate
+        (p1 0) ; original _current_ price
+        (p2 0)) ; new _current_ price
+    (setf p1 (ci-fv (coupon-pv fv n1 .003 r1) r1 (- n1 n2)))
+    (setf p2 (ci-pv (+ fv (a-fv div cr n2))
+                    r2 n2))
+    (format t "~f, ~f~%" p1 p2)
+    p2))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assignment 5-b
