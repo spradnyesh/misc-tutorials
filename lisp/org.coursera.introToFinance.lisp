@@ -113,6 +113,9 @@
 (defun ci-pv (fv r n)
   (/ fv (expt (1+ r) n)))
 
+(defun ci-r (pv fv n)
+  (1- (expt (/ fv pv) (/ 1 n))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; annuities
 ;; ***** remeber that annuity is paid at the _end_ of the year *****
@@ -156,9 +159,14 @@
           (setf c (* c (1+ g))))
         rslt)))
 
+;; effective-annual-rate
 ;; k: #periods in a year (12 for monthly, 4 for quarterly, etc)
-(defun effective-annual-rate (r k)
+(defun ear (r k)
   (1- (expt (1+ (/ r k)) k)))
+
+;; advertised-annual-rate
+(defun r (ear k)
+  (* k (1- (expt (1+ ear) (/ 1 k)))))
 
 (defun loan-decrease-table (loan-amount r n)
   (let ((pmt (pmt-for-apv loan-amount r n))
@@ -226,7 +234,7 @@
 ;; yeild-to-maturity (r) of a zero-coupon bond
 ;; this is the same as the 'r' of a compound-interest investment
 (defun ytm (pv fv n)
-  (1- (expt (/ fv pv) (/ 1 n))))
+  (ci-r pv fv n))
 
 ;; r1: r for coupon (decided at time when contract was made by govt, cannot change over tenure) => coupon-rate
 ;; r2: r for market rate (decided by market, may change over tenure) => yield-to-maturity
@@ -270,6 +278,13 @@
 
 (defun growth-stock-pv-2 (cps roi r b)
   (growth-stock-pv (* (- 1 b) cps roi) r (* b roi)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; excel functions that i cannot replicate here :(
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun excel-rate (n div pv fv)
+  (declare (ignore n div pv fv))
+  0)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lecture problems
@@ -367,3 +382,131 @@
                   (- admin)
                   (- tax)
                   value))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; assignment 5-a
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun a.5.a.1 ()
+  (ci-pv 10000 .015 10))
+(defun a.5.a.2 ()
+  t)
+(defun a.5.a.3 ()
+  nil)
+(defun a.5.a.4 ()
+  (* 2 100 (ytm 950 1000 4)))
+(defun a.5.a.5 ()
+  nil)
+#|(defun a.5.a.6 ()
+  (let* ((n (* 2 6))
+         (r (/ .05 2))
+         (fv 100000)
+         (pv 89793)
+         (div (* fv r))
+         (forwarded-fv 0)) ; take all div's fwd in time
+    (dotimes (i n)
+      (setf forwarded-fv (+ forwarded-fv (ci-fv div r (- n i 1)))))
+    (setf forwarded-fv (+ forwarded-fv fv))
+    (* 2 (ci-r pv forwarded-fv n))))|#
+(defun a.5.a.6 ()
+  (let* ((n (* 2 6))
+         (r1 (/ .05 2))
+         (fv 100000)
+         (pv 89793)
+         (div (* fv r1)))
+    (* 2 100 (+ (excel-rate n div (- pv) fv)
+                3.56)))) ; answer obtained from excel
+(defun a.5.a.7 ()
+  nil)
+(defun a.5.a.8 ()
+  (let* ((fv 1000)
+         (r-1 (/ .08 2))
+         (r-2 (/ .05 2))
+         (n-1 (* 2 9))
+         (n-2 (* 2 6))
+         (value-1 0)
+         (value-2 0))
+    (setf value-1 (ci-pv fv r-1 n-1))
+    (format t "~f, " value-1) ; value of 1000$ in the begining (9 yrs before maturity) at 8% pa
+    (setf value-2 (ci-pv fv r-2 n-2))
+    (format t "~f, " value-2) ; value of 1000$ today (6 yrs before maturity) at 5% pa
+    (setf value-2 (ci-pv value-2 r-1 (- n-1 n-2)))
+    (format t "~f~% " value-2) ; value of todays value in the begining at 8% pa (that i would've earned till now)
+    (- value-1 value-2))) ; since value-1 < value-2, it's a profit and needs to be shown in the +ve
+(defun a.5.a.9 ()
+  (let* ((pv 1500000)
+         (fv-zero 3500000)
+         (fv-coupon 2000000)
+         (div (/ 125000 2))
+         (n (* 10 2))
+         (ytm-zero 0)
+         (ytm-coupon 0))
+    (setf ytm-zero (* 2 100 (ytm pv fv-zero n)))
+    (format t "~f, " ytm-zero)
+    (setf ytm-coupon (+ (excel-rate n div pv fv-coupon)
+                        (* 2 5.16)))
+    (format t "~f, " ytm-coupon)
+    ))
+(defun a.5.a.10 ())
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; assignment 5-b
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun a.5.b.1 ())
+(defun a.5.b.2 ())
+(defun a.5.b.3 ())
+(defun a.5.b.4 ())
+(defun a.5.b.5 ())
+(defun a.5.b.6 ())
+(defun a.5.b.7 ())
+(defun a.5.b.8 ())
+(defun a.5.b.9 ())
+(defun a.5.b.10 ())
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; assignment 6-a
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun a.6.a.1 ())
+(defun a.6.a.2 ())
+(defun a.6.a.3 ())
+(defun a.6.a.4 ())
+(defun a.6.a.5 ())
+(defun a.6.a.6 ())
+(defun a.6.a.7 ())
+(defun a.6.a.8 ())
+(defun a.6.a.9 ())
+(defun a.6.a.10 ())
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; assignment 6-b
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun a.6.b.1 ())
+(defun a.6.b.2 ())
+(defun a.6.b.3 ())
+(defun a.6.b.4 ())
+(defun a.6.b.5 ())
+(defun a.6.b.6 ())
+(defun a.6.b.7 ())
+(defun a.6.b.8 ())
+(defun a.6.b.9 ())
+(defun a.6.b.10 ())
+
+(defun a.7.a.1 ())
+(defun a.7.a.2 ())
+(defun a.7.a.3 ())
+(defun a.7.a.4 ())
+(defun a.7.a.5 ())
+(defun a.7.a.6 ())
+(defun a.7.a.7 ())
+(defun a.7.a.8 ())
+(defun a.7.a.9 ())
+(defun a.7.a.10 ())
+(defun a.7.b.1 ())
+(defun a.7.b.2 ())
+(defun a.7.b.3 ())
+(defun a.7.b.4 ())
+(defun a.7.b.5 ())
+(defun a.7.b.6 ())
+(defun a.7.b.7 ())
+(defun a.7.b.8 ())
+(defun a.7.b.9 ())
+(defun a.7.b.10 ())
