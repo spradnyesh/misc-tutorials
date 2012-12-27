@@ -472,9 +472,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; assignment 6-a
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun a.6.a.1 ())
-(defun a.6.a.2 ())
-(defun a.6.a.3 ())
+(defun a.6.a.1 ()
+  nil)
+(defun a.6.a.2 ()
+  "Raeael")
+(defun a.6.a.3 ()
+  )
 (defun a.6.a.4 ())
 (defun a.6.a.5 ())
 (defun a.6.a.6 ())
