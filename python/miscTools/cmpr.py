@@ -25,9 +25,11 @@ def cmpr(fOrig):
         fNew = nm + 'Orig' + extn
         os.rename(fOrig, fNew)
         cmd = 'convert -quality ' + str(jpegQuality) + ' ' + fNew + ' ' + fOrig
-    elif extn.lower() == '.avi':
-        cmd = 'mencoder -noskip -forceidx -ffourcc DX50 -oac mp3lame \
-                -ovc lavc ' + fOrig + ' -o ' + nm + '.mpg'
+    elif extn.lower() == '.avi' or extn.lower() == '.mp4':
+        #cmd = 'avconv -i ' + fOrig + ' -c:v libx264 -crf 23 -c:a libfaac -b:a 192k ' + nm + '.mpg'
+        print "##### sleeping before starting to convert a video"
+        os.system("sleep 10")
+        cmd = 'ffmpeg -i ' + fOrig + ' -s uxga ' + nm + '.mpg'
     elif extn.lower() == '.wav':
         cmd = 'toolame ' + fOrig + ' ' + nm + '.mp3'
     elif extn.lower() == '.thm':
