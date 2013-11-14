@@ -1,7 +1,9 @@
+;; $ eqli > ~/installed
+
 (defclass pkg ()
-	((size :initarg :size :accessor pkg-size)
-	 (unit :initarg :unit :accessor pkg-unit)
-	 (group-name :initarg :group-name :accessor pkg-group-name)))
+  ((size :initarg :size :accessor pkg-size)
+   (unit :initarg :unit :accessor pkg-unit)
+   (group-name :initarg :group-name :accessor pkg-group-name)))
 (defun do-the-do ()
   (let ((in (open "/home/pradyus/installed"))
 		(rslt nil))
@@ -10,13 +12,13 @@
 		 while line do
 		   #|(format t "~a~%" line)|#
 		   (let* ((split (split-sequence:split-sequence " " line :test #'string-equal))
-				  (5th (nth 5 split))
-				  (sizeUnit (subseq 5th 1 (- (length 5th) 1)))
+				  (3rd (nth 3 split))
+				  (sizeUnit (subseq 3rd 1 (- (length 3rd) 1)))
 				  (len (length sizeUnit))
 				  (pkg (make-instance 'pkg :size (parse-integer (subseq sizeUnit 0 (- len 2))
 																:junk-allowed t)
 									:unit (subseq sizeUnit (- len 2))
-									:group-name (nth 8 split))))
+									:group-name (nth 6 split))))
 			 (when (string-equal "MB" (pkg-unit pkg))
 			   (push pkg rslt))))
 	  (close in))
