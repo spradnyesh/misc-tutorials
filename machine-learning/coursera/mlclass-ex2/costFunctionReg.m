@@ -21,17 +21,16 @@ grad = zeros(size(theta));
 h = sigmoid(theta' * X');
 
 for i = 1:m
-  first = (y(i) * log(h(i)));
-  second = ((1 - y(i)) * log(1 - h(i)));
+  first = y(i) * log(h(i));
+  second = (1 - y(i)) * log(1 - h(i));
   J = J - (first + second);
-endfor;
+endfor
 
 thetaSS = 0;
-for j = 1:n
+for j = 2:n
   thetaSS = thetaSS + (theta(j) ^ 2);
 endfor
-thetaSS = lambda * thetaSS / 2;
-J = (J + thetaSS) / m;
+J = (J + (lambda * thetaSS / 2)) / m;
 
 diff = h' - y;
 for j = 1:n
