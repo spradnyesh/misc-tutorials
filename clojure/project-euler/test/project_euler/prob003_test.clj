@@ -2,4 +2,4 @@
   (:use expectations
         project-euler.prob003))
 
-(expect 6857 (prime-factors 600851475143))
+(expect 6857 (max-prime 600851475143))
