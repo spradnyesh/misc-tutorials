@@ -1,4 +1,5 @@
-(ns project-euler.prob003)
+(ns project-euler.prob003
+  (:use [clojure.math.numeric-tower :as math]))
 
 (defn max-prime [n]
   (let [num (atom n)
@@ -12,7 +13,8 @@
       (swap! factor inc))
     @last-factor))
 
-(comment (defn prime-factors-2 [n]
+(comment ; not working, and (maybe) wrong approach
+  (defn prime-factors-2 [n]
            (let [factors (atom [1])]
              (while (not= n (reduce * @factors))
                (do
@@ -25,12 +27,13 @@
                          (println "3: " @factors))))))
              @factors)))
 
+(defn is-prime? [n]
+  (empty? (for [i (range 2 (math/sqrt n))
+                :when (= 0 (rem n i))]
+            i)))
+
 (defn max-prime-2 [n]
-  (max (loop [num n,
-              factors [1]]
-         (if (= n (reduce * @factors))
-           @factors
-           (let [sub-factors (concat factors (for [i (range 2 (inc (/ num 2)))
-                                                   :when (= 0 (rem num i))]
-                                               i))]
-             (recur (/ num (reduce * sub-factors)) sub-factors))))))
+  (apply max (for [i (range 2 (math/sqrt n))
+                   :when (and (is-prime? i)
+                              (= 0 (rem n i)))]
+               i)))
