@@ -28,7 +28,7 @@
              @factors)))
 
 (defn is-prime? [n]
-  (empty? (for [i (range 2 (math/sqrt n))
+  (empty? (for [i (range 2 (math/sqrt (inc n)))
                 :when (= 0 (rem n i))]
             i)))
 
