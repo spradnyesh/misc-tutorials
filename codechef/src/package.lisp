@@ -1,0 +1,2 @@
+(defpackage :codechef
+  (:use :cl))
