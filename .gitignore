@@ -2,3 +2,5 @@
 lisp/tutorials
 scripts/sbcl-script
 clojure/*/target/*
+clojurescript/*/target/*
+*zip
