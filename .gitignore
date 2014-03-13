@@ -1,6 +1,9 @@
 *fasl
+*pyc
 lisp/tutorials
 scripts/sbcl-script
 clojure/*/target/*
 clojurescript/*/target/*
 *zip
+machine-learning/pybrain
+machine-learning/ffnet/ffnet-0.7.1
