@@ -40,3 +40,60 @@
   [l]
   (vals (group-by type l)))
 #(vals (group-by type %))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn ex53)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; 1st attempt fails because group-by wraps at 32
+(defn ex56
+  [l]
+  (vec (keys (group-by identity l))))
+;; 2nd attempt fails because set too wraps at 32 :(
+(defn ex56-2
+  [l]
+  (vec (set l)))
+(defn ex56-3
+  [l]
+  (loop [rslt [] a l]
+    (if a
+      (if (clojure.set/subset? (set (list (first a))) (set rslt))
+        (recur rslt (next a))
+        (recur (conj rslt (first a)) (next a)))
+      rslt)))
+#(loop [rslt [] a %]
+   (if a
+     (if (clojure.set/subset? (set (list (first a))) (set rslt))
+       (recur rslt (next a))
+       (recur (conj rslt (first a)) (next a)))
+     rslt))
+
+(defn ex58
+  [& fns]
+  (fn [& args]
+    (let [rslt (atom (apply (last fns) args))
+          fns (reverse (drop-last fns))]
+      (doall (for [f fns]
+               (reset! rslt (f @rslt))))
+      @rslt)))
+
+(defn ex59 [& fns]
+  (fn [& args]
+    (loop [fns fns
+           rslt []]
+      (if fns
+        (recur (next fns) (conj rslt (apply (first fns) args)))
+        rslt))))
+(defn ex59-2 [& f]
+  (fn [& a]
+    (map #(apply % a) f)))
+
+(defn ex60
+  ([a b]
+     (ex60 a (first b) (rest b)))
+  ([a b c]
+     (ex60 a [] b c))
+  ([a b c d]
+     (let [rslt (vector (apply a b))]
+       (for [i c]
+         (do (conj rslt (apply a (last rslt) i)))))))
