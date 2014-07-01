@@ -61,12 +61,6 @@
         (recur rslt (next a))
         (recur (conj rslt (first a)) (next a)))
       rslt)))
-#(loop [rslt [] a %]
-   (if a
-     (if (clojure.set/subset? (set (list (first a))) (set rslt))
-       (recur rslt (next a))
-       (recur (conj rslt (first a)) (next a)))
-     rslt))
 
 (defn ex58
   [& fns]
@@ -88,6 +82,7 @@
   (fn [& a]
     (map #(apply % a) f)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn ex60
   ([a b]
      (ex60 a (first b) (rest b)))
@@ -97,3 +92,38 @@
      (let [rslt (vector (apply a b))]
        (for [i c]
          (do (conj rslt (apply a (last rslt) i)))))))
+
+(defn ex63)
+(defn ex65)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn ex66
+  [a b]
+  (let [c (max a b)
+        d (min a b)]
+    (loop [a c
+           b d]
+        (if (zero? b)
+          a
+          (recur b (rem a b))))))
+
+(defn ex67
+  [n]
+  (letfn [(prime? [x]
+            (not (some zero? (map (partial rem x) (range 2 x)))))]
+    (take n (filter prime? (iterate inc 2)))))
+
+(defn ex69
+  [f & maps]
+  (into {} (map (fn [[k v]] (vec [k (reduce f (map second v))]))
+                (group-by first (apply concat (map vec maps))))))
+
+(defn ex69-2 ; rewritten above (exactly same) w/ threading
+  [f & maps]
+  (into {} (map (fn [[k v]] [k (->> v
+                                    (map second)
+                                    (reduce f))])
+                (->> maps
+                     (map vec)
+                     (apply concat)
+                     (group-by first)))))
