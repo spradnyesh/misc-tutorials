@@ -327,3 +327,116 @@
               x
               (gcd y (rem x y))))]
     (/ (reduce * nums) (reduce gcd nums))))
+
+(defn ex147
+  [v]
+  (cons v
+        (lazy-seq (ex147 (concat (vector (first v))
+                                 (map (partial apply +') (partition 2 1 v))
+                                 (vector (last v)))))))
+
+(defn ex96 ; incomplete
+  [tree]
+  (let [val (first tree)
+        left (nth tree 1)
+        right (nth tree 2)]
+    (if (and (not (coll? left))
+             (not (coll? right))
+             (= left right))
+      true
+      (and (coll? left)
+           (coll? right)
+           (= (first left) (first right))
+           ; ???
+           ))))
+(defn ex96-2
+  [tree]
+  (letfn [(inorder [tree]
+            (if (coll? tree)
+              (let [val (first tree)
+                    left (nth tree 1)
+                    right (nth tree 2)]
+                (concat (inorder left)
+                        (vector val)
+                        (inorder right)))
+              (vector tree)))]
+    (= (inorder (nth tree 1))
+       (reverse (inorder (nth tree 2))))))
+
+(defn ex146
+  [m]
+  (reduce conj {}
+          (apply concat (for [[k v] m]
+                          (for [i v]
+                            (vector (vector k (first i))
+                                    (second i)))))))
+
+(defn ex153
+  [sets]
+  (let [sets (seq sets)
+        a (apply concat sets)
+        b (seq (apply clojure.set/union sets))]
+    (and (= (count a) (count b)))))
+
+(defn ex74
+  [s]
+  (clojure.string/join ","
+                       (filter (fn [x]
+                                 (let [sqrt (Math/pow x 0.5)]
+                                   (== sqrt (int sqrt))))
+                               (map #(Integer/parseInt %) (clojure.string/split s #",")))))
+
+(defn ex80 ; need largest divisors, not smallest
+  [n]
+  (loop [n n
+                      a 2
+                      acc []]
+                 (if (= a n)
+                   (concat acc [1 n])
+                   (if (zero? (rem n a))
+                     (recur (/ n a)
+                            2
+                            (conj acc a))
+                     (recur n
+                            (inc a)
+                            acc)))))
+(defn ex80-2 ; need to find divisors, not factors (see http://wiki.answers.com/Q/Why_is_496_a_perfect_number)
+  [n]
+  (loop [n n
+         a (dec n)
+         acc []]
+    (if (= a 1)
+      (concat acc [1 n])
+      (if (zero? (rem n a))
+        (recur (/ n a)
+               (dec (/ n a))
+               (conj acc a))
+        (recur n
+               (dec a)
+               acc)))))
+(defn ex80-3
+  [n]
+  (= n (reduce + (filter #(zero? (rem n %)) (range 1 n)))))
+
+(defn ex77                              ; works for 1st test
+  [words]
+  (reduce (fn [a b]
+            (if (clojure.set/intersection a b)
+              (clojure.set/union a b)
+              (concat a b)))
+          (letfn [(anagram? [a b]
+                    (= (sort a) (sort b)))]
+            (for [i words
+                  j words
+                  :when (and (not= i j)
+                             (anagram? i j))]
+              (set [i j])))))
+(defn ex77-2                            ; works for 2nd test
+  [words]
+  (distinct (letfn [(anagram? [a b]
+                      (= (sort a) (sort b)))]
+              (for [i words
+                    j words
+                    :when (and (not= i j)
+                               (anagram? i j))]
+                (set [i j])))))
