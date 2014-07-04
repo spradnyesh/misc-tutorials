@@ -1,4 +1,10 @@
-(ns user)
+(ns clojure4)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 53
+; 60
+; 65
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn ex43
   [l n]
@@ -41,10 +47,6 @@
   (vals (group-by type l)))
 #(vals (group-by type %))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn ex53)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 ;; 1st attempt fails because group-by wraps at 32
 (defn ex56
   [l]
@@ -81,20 +83,6 @@
 (defn ex59-2 [& f]
   (fn [& a]
     (map #(apply % a) f)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn ex60
-  ([a b]
-     (ex60 a (first b) (rest b)))
-  ([a b c]
-     (ex60 a [] b c))
-  ([a b c d]
-     (let [rslt (vector (apply a b))]
-       (for [i c]
-         (do (conj rslt (apply a (last rslt) i)))))))
-
-(defn ex65)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn ex66
   [a b]
@@ -204,7 +192,6 @@
   (set (for [x s1
              y s2]
          [x y])))
-#(set (for [x %1 y %2] [x y]))
 
 (defn ex63
   [f s]
@@ -440,3 +427,174 @@
                     :when (and (not= i j)
                                (anagram? i j))]
                 (set [i j])))))
+
+(defn ex60
+  ([a b]
+     (ex60 a (first b) (rest b)))
+  ([a b c]
+     (ex60 a [] b c))
+  ([a b c d]
+     (let [rslt (vector (apply a b))]
+       (for [i c]
+         (do (conj rslt (apply a (last rslt) i)))))))
+(defn ex60-2
+  ([f s] (ex60-2 f (first s) (rest s)))
+  ([f d s]
+     (cons d
+           (lazy-seq (ex60-2 f
+                             (reduce f d (vector (first s)))
+                             (rest s))))))
+
+(defn ex102
+  [string]
+  (let [words (clojure.string/split string #"-")
+        f (first words)
+        r (rest words)]
+    (apply str f (map (fn [s]
+                        (str (clojure.string/capitalize (subs s 0 1)) (subs s 1)))
+                      r))))
+
+(defn ex75
+  [n]
+  (letfn [(gcd [x y]
+            (if (zero? y)
+              x
+              (gcd y (rem x y))))
+          (coprime? [x y]
+            (= (gcd x y) 1))]
+    (if (= n 1)
+      1
+      (count (filter true? (map (partial coprime? n) (range 1 (inc n))))))))
+
+(defn ex86
+  [n]
+  (letfn [(digits [num]
+            (loop [acc ()
+                   num num]
+              (if (< num 10)
+                (conj acc num)
+                (recur (conj acc (rem num 10))
+                       (quot num 10)))))
+          (squared-sum [& digits]
+            (reduce + (apply map #(* % %) digits)))]
+    (loop [n n
+           acc #{}]
+      (let [new-number (squared-sum (digits n))]
+        (if (= 1 new-number)
+          true
+          (if (contains? acc new-number)
+            false
+            (recur new-number
+                   (conj acc new-number))))))))
+
+(defn ex78
+  [f & args]
+  (loop [val (apply f args)]
+    (if (fn? val)
+      (recur (val))
+      val)))
+
+(defn ex98
+  [f s]
+  (into #{} (map set (vals (group-by f s)))))
+
+(defn ex115
+  [n]
+  (letfn [(digits [num]
+            (map #(- (int %) 48) (str num)))]
+    (let [d (digits n)
+          c-by-2 (int (/ (count d) 2))]
+      (= (reduce + (take c-by-2 d))
+         (reduce + (take-last c-by-2 d))))))
+
+(defn ex85 ; logic from http://stackoverflow.com/a/15498781 (1st approach)
+  [s]
+  (if (= 2 (count s))
+    (set (conj (map (comp set vector) s) s #{}))
+    (let [subsets (for [i s]
+                    (clojure.set/difference s #{i}))]
+      (conj (set (apply concat (map ex85 subsets))) s))))
+(defn ex85-2
+  ;; previous attempt timed out for last example
+  ;; trying out logic from http://stackoverflow.com/a/15498781 ("another approach")
+  [s]
+  (set (conj
+        (if (= 0 (count s))
+          nil
+          (let [res (ex85-2 (rest s))]
+            (map #(if (coll? %)
+                    (set %)
+                    (set [%]))
+                 (concat res
+                         [(first s)]
+                         (map #(if (coll? %)
+                                 (conj % (first s))
+                                 (conj [%] (first s)))
+                              res)))))
+        #{})))
+
+(defn ex105
+  [s]
+  (loop [s s
+         acc {}]
+    (if (empty? s)
+      acc
+      (let [k (first s)
+            v (take-while (complement keyword?) (rest s))
+            r (drop (inc (count v)) s)]
+        (recur r (conj acc [k v]))))))
+
+(defn ex137
+  [num base]
+  (loop [acc ()
+         num num]
+    (if (< num base)
+      (conj acc num)
+      (recur (conj acc (rem num base))
+             (quot num base)))))
+
+(defn ex110
+  [s]
+  (let [res (flatten (map (fn [x]
+                            [(count x) (first x)])
+                          (partition-by identity s)))]
+    (cons res
+          (lazy-seq (ex110 res)))))
+
+(defn ex144
+  [num & functions]
+  (cons num
+        (lazy-seq (apply ex144
+                         ((first functions) num)
+                         (conj (vec (rest functions)) (first functions))))))
+
+
+(defn ex108 ; wrong approach -> reduce won't (necessarily) work
+  [& s]
+  (letfn [(search [s1 s2]
+            (let [s1 (if (coll? s1) s1 [s1])
+                  a (first s1)
+                  b (first s2)]
+              (cond (= a b) [a]
+                    (< a b) (search (drop-while #(> b %) s1) s2)
+                    :else (search s2 s1))))]
+    (if (= 1 (count s))
+      (first (first s))
+      (reduce search s))))
+(defn ex108-2
+  [& s]
+  (letfn [(search [s1 s2]
+            (if (coll? s1)
+              (let [a (first s1)
+                    b (first s2)]
+                (cond (= a b) a
+                      (< a b) (search (drop-while #(> b %) s1) s2)
+                      :else (search s2 s1)))
+              (if (= s1 (first (drop-while #(> s1 %) s2)))
+                s1
+                nil)))]
+    (cond (= 1 (count s)) (first (first s))
+          :else (let [low (apply search (take 2 s))]
+                     (if (search low (last s))
+                            low
+                            (apply ex108-2 (map #(drop-while (partial >= low) %) s)))))))
