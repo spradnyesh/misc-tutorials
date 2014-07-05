@@ -2,8 +2,12 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 53
-; 60
+; 60 (failing due to laziness)
 ; 65
+; 77
+; 132 NPE
+; 158
+; 173
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn ex43
@@ -598,3 +602,115 @@
                      (if (search low (last s))
                             low
                             (apply ex108-2 (map #(drop-while (partial >= low) %) s)))))))
+
+(defn ex93
+  [s]
+  (if-not (coll? (first s))
+    [s]
+    (apply concat (map ex93 s))))
+
+(defn ex114
+  [n f l]
+  (loop [n n
+         l l
+         acc []]
+    (if (zero? n)
+      (drop-last acc)
+      (let [d (drop-while (complement f) l)]
+        (recur (dec n)
+               (rest d)
+               (concat acc (take-while (complement f) l) [(first d)]))))))
+
+(defn ex158
+  [f]
+  (fn [& args]
+    (reduce apply f args)))
+
+(defn ex132
+  [f val coll]
+  (when-not (empty? coll)
+    (loop [acc [(first coll)]
+           coll (rest coll)]
+      (if (empty? coll)
+        acc
+        (if (f (last acc) (first coll))
+          (recur (concat acc [val (first coll)])
+                 (rest coll))
+          (recur (concat acc [(first coll)])
+                 (rest coll)))))))
+(defn ex132-2 ; -1 fails for lazy sequences
+  [f val coll]
+  (when-not (empty? coll)
+    (println coll)
+    (if (keyword? (first coll))
+      (cons (first coll)
+              (lazy-seq (ex132-2 f val (rest coll))))
+      (if (f (first coll) (second coll))
+        (cons (first coll)
+                (lazy-seq (ex132-2 f val (cons val (rest coll)))))
+        (cons (first coll)
+                (lazy-seq (ex132-2 f val (rest coll))))))))
+
+(defn ex103
+  [n s]
+  (letfn [(powerset [s]
+            (if (= 2 (count s))
+              (set (conj (map (comp set vector) s) s #{}))
+              (let [subsets (for [i s]
+                              (clojure.set/difference s #{i}))]
+                (conj (set (apply concat (map powerset subsets))) s))))]
+    (set (filter #(= (count %) n) (powerset s)))))
+
+(defn ex116
+  [n]
+  (let [not-balanced-primes [0 1 2 3]]
+    (letfn [(prime? [x]
+              (not (some zero? (map (partial rem x) (range 2 x)))))
+            (next-prime [n]
+              (first (take 1 (filter prime? (iterate inc (inc n))))))
+            (prev-prime [n]
+              (first (take 1 (filter prime? (iterate dec (dec n))))))]
+      (and (= -1 (.indexOf not-balanced-primes n))
+           (prime? n)
+           (= n (/ (+ (next-prime n)
+                      (prev-prime n))
+                   2))))))
+
+(defn ex121
+  [f v]
+  (eval (map #(if-let [a (% v)] a %) f)))
+(defn ex121-2                          ; -1 does not return a function
+  [f]
+  (fn [v]
+    (map #(if-let [a (% v)] a %) f)))
+(defn ex121-3                 ; -2 does not work on nested expressions
+  [f]
+  (fn [v]
+    (let [functions {'+ + '- - '* * '/ /}]
+      (letfn [(replace-symbol-with-value [x]
+                (if (coll? x)
+                  (map replace-symbol-with-value x)
+                  (if-let [a (v x)] a x)))
+              (e-val [e & xpr]
+                (if (number? e)
+                  e
+                  (if (some coll? xpr)
+                    (apply (e functions)
+                           (map #(apply e-val (if-not (coll? %)
+                                                [%]
+                                                %)) xpr))
+                    (apply (e functions) xpr))))]
+        (apply e-val (map replace-symbol-with-value f))))))
+
+(defn ex148
+  [n a b]
+  (let [numbers (range n)
+        div-a (filter #(zero? (rem % a)) numbers)
+        div-b (filter #(zero? (rem % b)) numbers)
+        union (distinct (concat div-a div-b))]
+    (reduce + union)))
+(defn ex148-2 ; -1 time-outs for large tests
+  [n a b]
+  (reduce + (filter #(or (zero? (rem % a))
+                         (zero? (rem % b)))
+                    (range n))))
