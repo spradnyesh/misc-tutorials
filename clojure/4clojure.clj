@@ -6,6 +6,8 @@
 ; 65
 ; 77
 ; 132 NPE
+; 148 timeout
+; 150 timeout
 ; 158
 ; 173
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -714,3 +716,99 @@
   (reduce + (filter #(or (zero? (rem % a))
                          (zero? (rem % b)))
                     (range n))))
+
+(defn ex171
+  [coll]
+  (if-not (empty? coll)
+    (loop [coll (sort coll)
+           acc [[(first coll) (first coll)]]]
+      (let [fc (first coll)
+            fla (first (last acc))
+            lla (last (last acc))]
+        (cond (empty? coll)
+              acc
+              (or (= lla fc)
+                  (= 1 (- fc lla)))
+              (recur (rest coll)
+                     (if (= 1 (count acc))
+                       [[fla fc]]
+                       (concat (drop-last acc) [[fla fc]])))
+              :else
+              (recur (rest coll)
+                     (concat acc [[fc fc]])))))
+    []))
+
+(defn ex131
+  [& sets]
+  (letfn [(powerset [src]
+            (if (empty? src) #{#{}}
+                (letfn [(tst [s] (distinct (mapcat #(for [x (range (count %))] (disj % (nth (vec %) x))) s)))]
+                  (loop [x (list src) y #{#{}}]
+                    (if (= 1 (count (first x))) (set(concat y x))
+                        (recur (tst x) (concat y x)))))))]
+    (->> sets
+         (map (comp set
+                    (fn [x] (map #(reduce + %) x))
+                    (partial filter (complement empty?))
+                    powerset))
+         (apply clojure.set/intersection)
+         (count)
+         (< 0))))
+
+(defn ex141
+  [trump]
+  (fn [cards]
+    (apply max-key :rank (filter #(= (if trump
+                                       trump
+                                       (:suit (first cards)))
+                                     (:suit %))
+                                 cards))))
+
+(defn ex177
+  [str]
+  (let [brackets [\( \[ \{ \) \] \}]
+        input (filter #(not (= -1 (.indexOf brackets %))) str)]
+    (loop [stack (list (first input))
+             coll (rest input)]
+        (let [fc (first coll)]
+          (cond (empty? input)
+                true
+                (empty? coll)
+                (empty? stack)
+                ;; found opening
+                (not (= -1 (.indexOf (take 3 brackets) fc)))
+                (recur (conj stack fc)
+                       (rest coll))
+                ;; found closing
+                (= (first stack) ({\) \(, \] \[, \} \{} fc))
+                (recur (rest stack) ; closing and opening (in stack) matched
+                       (rest coll))
+                ;; imbalanced
+                true false)))))
+
+(defn ex150
+  [n]
+  (letfn [(palindrome? [x]
+            (= x (apply str (reverse x))))
+          (next-palindrome [x]
+            (if (palindrome? (str x)) x (recur (inc x))))]
+    (let [x (next-palindrome n)]
+      (cons x
+            (lazy-seq (ex150 (inc x)))))))
+(defn ex150-2 ; -1 time-outs
+  [n]
+  (letfn [(digits [num]
+            (loop [acc ()
+                   num num]
+              (if (< num 10)
+                (conj acc num)
+                (recur (conj acc (rem num 10))
+                       (quot num 10)))))
+          (palindrome? [x]
+            (let [d (digits x)]
+              (= d (reverse d))))
+          (next-palindrome [x]
+            (if (palindrome? x) x (recur (inc x))))]
+    (let [x (next-palindrome n)]
+      (cons x
+            (lazy-seq (ex150-2 (inc x)))))))
