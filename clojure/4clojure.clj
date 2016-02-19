@@ -28,6 +28,9 @@
   (fn [& args]
     (apply f (reverse args))))
 
+;; ex46
+(fn [f] (fn [a b] (f b a)))
+
 (defn ex49
   [n l]
   (let [a (partition-all n l)]
