@@ -7,3 +7,4 @@ clojurescript/*/target/*
 *zip
 machine-learning/pybrain
 machine-learning/ffnet/ffnet-0.7.1
+reveal.js
