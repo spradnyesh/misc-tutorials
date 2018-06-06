@@ -8,4 +8,4 @@ clojurescript/*/target/*
 machine-learning/pybrain
 machine-learning/ffnet/ffnet-0.7.1
 reveal.js
-node
+js/*/node_modules/
